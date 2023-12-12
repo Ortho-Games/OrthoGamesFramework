@@ -1,3 +1,5 @@
+--!strict
+
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -10,10 +12,8 @@ local ClicksComponent = require(Globals.Server.Components.ClicksComponent)
 local PlayerComponent = require(Globals.Server.Components.PlayerComponent)
 
 local function newUser(player)
-	local entity = World.entity()
-	PlayerComponent.add(entity, player)
-	ClicksComponent.add(entity)
-	return entity
+	ClicksComponent.add(player)
+	return player
 end
 
 Players.PlayerAdded:Connect(newUser)
