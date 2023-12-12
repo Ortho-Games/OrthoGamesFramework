@@ -1,0 +1,14 @@
+[package]
+name = "data-oriented-house/sandwich"
+version = "2.2.1"
+registry = "https://github.com/UpliftGames/wally-index"
+licence = "MIT"
+authors = ["Sona"]
+
+description = "A minimalistic, lightweight, topologically sorted scheduler for luau."
+
+realm = "shared"
+
+exclude = ["README.md"]
+
+[dependencies]

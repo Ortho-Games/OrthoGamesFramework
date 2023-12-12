@@ -1,0 +1,19 @@
+{
+    "robloxLsp.diagnostics.severity": {
+        "unused-local": "Warning",
+        "unused-function": "Warning",
+        "unused-vararg": "Warning",
+        "duplicate-index": "Warning"
+    },
+    "[lua]": {
+        "editor.defaultFormatter": "JohnnyMorganz.stylua",
+        "editor.formatOnSave": true,
+        "editor.formatOnPaste": true,
+    },
+    "robloxLsp.diagnostics.globals": [
+        "version"
+    ],
+    "cSpell.enableFiletypes": [
+        "lua"
+    ]
+}
