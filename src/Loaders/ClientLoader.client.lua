@@ -2,25 +2,27 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 
 local Globals = require(ReplicatedStorage.Shared.Globals)
+local Net = require(Globals.Packages.Net)
 
 local Schedules = require(Globals.Shared.Modules.Schedules)
 
 -- boot
-for _, module in Globals.Client.Systems:GetDescendants() do
+for _, module in Globals.Client:GetDescendants() do
 	if not module:IsA("ModuleScript") then
 		continue
 	end
 
 	local success, e = pcall(require, module)
 	if not success then
-		warn(e)
+		warn(`{module.Name} ERROR: {e}\n {debug.traceback()}`)
 	end
 end
 
 -- tick
+-- Schedules.init.start()
 Schedules.boot.start()
 
-RunService.RenderStepped:Connect(function(dt)
+RunService.Heartbeat:Connect(function(dt)
 	Schedules.heartbeat.start(dt)
 end)
 

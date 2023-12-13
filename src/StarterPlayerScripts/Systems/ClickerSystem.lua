@@ -5,6 +5,10 @@ local Globals = require(ReplicatedStorage.Shared.Globals)
 local Net = require(Globals.Packages.Net)
 local Schedules = require(Globals.Shared.Modules.Schedules)
 
+-- Net:Connect("ReplicateDelta", function() end)
+
+-- Net:Connect("ReplicateFull", function() end)
+
 local function onClick(name, state, type)
 	if state ~= Enum.UserInputState.Begin then
 		return

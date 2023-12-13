@@ -6,7 +6,9 @@ local Sandwich = require(Globals.Packages.Sandwich)
 
 local Schedules = {}
 
+Schedules.init = Sandwich.schedule()
 Schedules.boot = Sandwich.schedule()
+
 Schedules.heartbeat = Sandwich.schedule()
 Schedules.gameTick = Sandwich.schedule()
 

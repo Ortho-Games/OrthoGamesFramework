@@ -2,8 +2,14 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 
 local Globals = require(ReplicatedStorage.Shared.Globals)
+local Net = require(Globals.Packages.Net)
 
 local Schedules = require(Globals.Shared.Modules.Schedules)
+
+Net:RemoteEvent("ReplicateRequest")
+Net:RemoteEvent("ReplicateAdded")
+Net:RemoteEvent("ReplicateChanged")
+Net:RemoteEvent("ReplicateRemoved")
 
 -- boot
 for _, module in Globals.Server:GetDescendants() do
@@ -18,6 +24,7 @@ for _, module in Globals.Server:GetDescendants() do
 end
 
 -- tick
+Schedules.init.start()
 Schedules.boot.start()
 
 RunService.Heartbeat:Connect(function(dt)
