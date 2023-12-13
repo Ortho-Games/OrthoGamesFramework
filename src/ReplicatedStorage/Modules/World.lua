@@ -7,7 +7,7 @@ local world = Stew.world()
 
 function world.spawned(entity)
 	if typeof(entity) == "Instance" then
-		entity.Destroyed:Once(function()
+		entity.Destroying:Once(function()
 			world.kill(entity)
 		end)
 	end
