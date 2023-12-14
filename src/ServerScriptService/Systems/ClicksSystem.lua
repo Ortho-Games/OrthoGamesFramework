@@ -28,8 +28,13 @@ return Schedules.boot.job(function()
 	Net:Connect("Clicked", function(player)
 		local component = ClicksComponent.get(player)
 
-		if component then
-			component.clicks += 1
+		if not component then
+			return
+		end
+
+		component.clicks += 1
+		if component.clicks > 250 then
+			ClicksComponent.remove(player)
 		end
 
 		-- print(component)

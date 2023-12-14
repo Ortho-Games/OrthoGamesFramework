@@ -27,8 +27,8 @@ local function newUser(player)
 
 	for _, components in World.query({}) do
 		for factory in components do
-			if typeof(factory.data) == "table" and typeof(factory.data.replicate) == "function" then
-				factory.data.replicate(player, factory)
+			if typeof(factory.data) == "table" and typeof(factory.data.replicateAll) == "function" then
+				factory.data.replicateAll(player, factory)
 			end
 		end
 	end
