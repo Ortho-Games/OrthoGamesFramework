@@ -1,17 +1,15 @@
---!strict
-
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
-local Globals: {} = require(ReplicatedStorage.Shared.Globals)
-local Net: {} = require(Globals.Packages.Net)
+local Globals = require(ReplicatedStorage.Shared.Globals)
+local Net = require(Globals.Packages.Net)
 
-local Schedules: {} = require(Globals.Shared.Modules.Schedules)
+local Schedules = require(Globals.Shared.Modules.Schedules)
 
 -- local query = World.query({ PlayerComponent, ClicksComponent })
 
-local ClicksComponent: {} = require(Globals.Server.Components.ClicksComponent)
+local ClicksComponent = require(Globals.Server.Components.ClicksComponent)
 
-local Profiles: {} = require(Globals.Server.Modules.Profiles)
+local Profiles = require(Globals.Server.Modules.Profiles)
 
 local ClicksSystem = {
 	id = "clicks",
@@ -33,7 +31,7 @@ return Schedules.boot.job(function()
 		end
 
 		component.clicks += 1
-		if component.clicks > 250 then
+		if component.clicks > 40 then
 			ClicksComponent.remove(player)
 		end
 

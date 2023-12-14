@@ -9,6 +9,7 @@ local Schedules = {}
 Schedules.init = Sandwich.schedule()
 Schedules.boot = Sandwich.schedule()
 
+Schedules.userAdded = Sandwich.schedule()
 Schedules.heartbeat = Sandwich.schedule()
 Schedules.gameTick = Sandwich.schedule()
 

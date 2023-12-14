@@ -4,12 +4,8 @@ local RunService = game:GetService("RunService")
 local Globals = require(ReplicatedStorage.Shared.Globals)
 local Net = require(Globals.Packages.Net)
 
+local World = require(Globals.Shared.Modules.World)
 local Schedules = require(Globals.Shared.Modules.Schedules)
-
-Net:RemoteEvent("ReplicateRequest")
-Net:RemoteEvent("ReplicateAdded")
-Net:RemoteEvent("ReplicateChanged")
-Net:RemoteEvent("ReplicateRemoved")
 
 -- boot
 for _, module in Globals.Server:GetDescendants() do

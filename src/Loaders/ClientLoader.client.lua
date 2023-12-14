@@ -2,7 +2,6 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 
 local Globals = require(ReplicatedStorage.Shared.Globals)
-local Net = require(Globals.Packages.Net)
 
 local Schedules = require(Globals.Shared.Modules.Schedules)
 
@@ -12,9 +11,9 @@ for _, module in Globals.Client:GetDescendants() do
 		continue
 	end
 
-	local success, e = pcall(require, module)
+	local success, output = pcall(require, module)
 	if not success then
-		warn(`{module.Name} ERROR: {e}\n {debug.traceback()}`)
+		warn(`{module.Name} ERROR: {output}\n {debug.traceback()}`)
 	end
 end
 
