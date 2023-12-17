@@ -12,8 +12,6 @@ local Profiles = require(Globals.Server.Modules.Profiles)
 local ClicksComponent = require(Globals.Components.ClicksComponent)
 local ProfileComponent = require(Globals.Components.ProfileComponent)
 
--- local query = World.query({ PlayerComponent, ClicksComponent })
-
 local PlayerProfileStore
 
 local function newUser(player)
@@ -22,21 +20,11 @@ local function newUser(player)
 	local componentData = ClicksComponent.add(player, profile)
 end
 
--- local systems = {}
--- for _, system: ModuleScript in Globals.Systems:GetChildren() do
--- 	if system == script then
--- 		continue
--- 	end
--- 	table.insert(systems, require(system))
--- end
-
-Schedules.boot.job(function()
+return Schedules.boot.job(function()
 	PlayerProfileStore = Profiles.createProfileTemplate()
 
 	Players.PlayerAdded:Connect(Schedules.userAdded.start)
 	for _, player in Players:GetPlayers() do
-		Schedules.userAdded.start(player)
+		newUser(player)
 	end
 end)
-
-return Schedules.userAdded.job(newUser)

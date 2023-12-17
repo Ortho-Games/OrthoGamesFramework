@@ -18,7 +18,7 @@ for _, module in Globals.Client:GetDescendants() do
 end
 
 -- tick
--- Schedules.init.start()
+Schedules.init.start()
 Schedules.boot.start()
 
 RunService.Heartbeat:Connect(function(dt)

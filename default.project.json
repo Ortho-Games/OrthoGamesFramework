@@ -5,7 +5,7 @@
 
     "ReplicatedStorage": {
       "Shared": {
-        "$path": "src/ReplicatedStorage"
+        "$path": "src/Shared"
       },
       "Packages": {
         "$path": "Packages"
@@ -24,7 +24,7 @@
         "$path": "src/Loaders/ServerLoader.server.lua"
       },
       "Server": {
-        "$path": "src/ServerScriptService"
+        "$path": "src/Server"
       }
     },
 
@@ -34,7 +34,7 @@
           "$path": "src/Loaders/ClientLoader.client.lua"
         },
         "Client": {
-          "$path": "src/StarterPlayerScripts"
+          "$path": "src/Client"
         }
       }
     }
