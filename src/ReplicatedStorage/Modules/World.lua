@@ -13,4 +13,4 @@ function world.spawned(entity)
 	end
 end
 
-return Stew.world()
+return world

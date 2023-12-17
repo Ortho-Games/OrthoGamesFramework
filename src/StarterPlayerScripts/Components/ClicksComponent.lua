@@ -1,36 +1,25 @@
---!strict
-
-local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local UserInputService = game:GetService("UserInputService")
 
-local Globals: {} = require(ReplicatedStorage.Shared.Globals)
-local Net = require(Globals.Packages.Net)
-local TableValue: {} = require(Globals.Packages.TableValue)
+local Globals = require(ReplicatedStorage.Shared.Globals)
+local TableValue = require(Globals.Packages.TableValue)
 local Janitor = require(Globals.Packages.Janitor)
 
 local ClicksDisplay = require(Globals.Client.UI.ClicksDisplay)
 
-local World: {} = require(Globals.Shared.Modules.World)
+local World = require(Globals.Shared.Modules.World)
 
-local Factory = World.factory({
+local ClicksComponent = World.factory({
 	add = function(factory, entity, data)
-		-- print(`Added clicks component to entity type "{typeof(entity)}"`)
+		data = data or {}
+		data.clicks = data.clicks or 0
 
-		local self = TableValue.new(data, function(index, value)
-			if entity ~= Players.LocalPlayer then
-				return
-			end
-		end)
-
+		local self = TableValue.new(data)
 		self.jan = Janitor.new()
 		self.ui = self.jan:Add(ClicksDisplay.make(self.Value))
 
 		function self.Changed(index, value)
 			ClicksDisplay.update(data.ui, self.Value)
 		end
-
-		-- data.clicks = data.clicks or 0
 
 		return self
 	end,
@@ -45,45 +34,24 @@ local Factory = World.factory({
 	},
 })
 
-Net:Connect("ReplicateAll", function(name, entities, entitiesData)
-	if name ~= Factory.data.name then
-		return
+function ClicksComponent.addFromPacket(entity, addPacket)
+	ClicksComponent.add(entity, addPacket)
+end
+
+function ClicksComponent.changeFromPacket(entity, changePacket)
+	local componentData = ClicksComponent.get(entity)
+	if not componentData then
+		componentData = ClicksComponent.add(entity, componentData)
 	end
 
-	for i = 1, #entities do
-		Factory.add(entities[i], entitiesData[i])
+	for _, delta in changePacket do
+		print(delta)
+		componentData[delta[1]] = delta[2]
 	end
-end)
+end
 
-Net:Connect("ReplicateAdded", function(name, entity, data)
-	print("Replicate Added")
-	if name ~= Factory.data.name then
-		return
-	end
+function ClicksComponent.removeFromPacket(entity, removePacket)
+	ClicksComponent.remove(entity, removePacket)
+end
 
-	Factory.add(entity, data)
-end)
-
-Net:Connect("ReplicateChanged", function(name, entity, index, value)
-	if name ~= Factory.data.name then
-		return
-	end
-
-	local data = Factory.get(entity)
-	if not data then
-		data = Factory.add(entity, { [index] = value })
-		return
-	end
-
-	data[index] = value
-end)
-
-Net:Connect("ReplicateRemoved", function(name, entity)
-	if name ~= Factory.data.name then
-		return
-	end
-
-	Factory.remove(entity)
-end)
-
-return Factory
+return ClicksComponent

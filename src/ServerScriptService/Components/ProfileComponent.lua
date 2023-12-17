@@ -1,5 +1,3 @@
---!strict
-
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -21,6 +19,7 @@ local function LoadData(player, profileStore)
 	profile:AddUserId(player.UserId)
 	profile:Reconcile()
 	profile:ListenToRelease(function()
+		print(profile.Data)
 		profile = nil
 		player:Kick()
 	end)

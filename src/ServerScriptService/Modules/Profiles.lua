@@ -1,5 +1,3 @@
---!strict
-
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Globals = require(ReplicatedStorage.Shared.Globals)
@@ -19,7 +17,6 @@ Profiles.createProfileTemplate = function(): {}
 	if Profiles.createdProfileTemplate then
 		error("Function Profiles.createProfileTemplate can only be called once")
 	end
-
 	Profiles.createdProfileTemplate = true
 
 	print(ProfileTemplate)
