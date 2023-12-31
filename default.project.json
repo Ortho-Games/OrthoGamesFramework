@@ -4,9 +4,6 @@
     "$className": "DataModel",
 
     "ReplicatedStorage": {
-      "Shared": {
-        "$path": "src/Shared"
-      },
       "Packages": {
         "$path": "Packages"
       },
@@ -16,6 +13,14 @@
       "Assets": {
         "$className": "Folder",
         "$ignoreUnknownInstances": true
+      },
+      
+      "Shared": {
+        "$path": "src/Shared"
+      },
+
+      "Client": {
+        "$path": "src/Client"
       }
     },
 
@@ -32,9 +37,6 @@
       "StarterPlayerScripts": {
         "ClientLoader": {
           "$path": "src/Loaders/ClientLoader.client.lua"
-        },
-        "Client": {
-          "$path": "src/Client"
         }
       }
     }

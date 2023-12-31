@@ -1,26 +1,55 @@
-local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local ServerScriptService = game:GetService("ServerScriptService")
+local ServerStorage = game:GetService("ServerStorage")
+
+local GameFolder = if RunService:IsServer() then ServerStorage.Server else ReplicatedStorage.Client
+
+local function lazyLoad(get)
+	local t, mt = {}, {}
+	function mt:__index(index)
+		local output = get(index)
+		if not output then
+			return
+		end
+
+		if typeof(output) == "Instance" and output:IsA("ModuleScript") then
+			output = require(output)
+		end
+
+		t[index] = output :: typeof(output)
+		return output
+	end
+
+	return setmetatable(t, mt)
+end
+
+local function lazyLoadSystems(...: Folder)
+	local gameLoadFolder, sharedLoadFolder = GameFolder.Systems, ReplicatedStorage.Shared.Systems
+
+	local children = gameLoadFolder:GetChildren()
+	local sharedChildren = sharedLoadFolder:GetChildren()
+	table.move(sharedChildren, 1, #sharedChildren, #children + 1, children)
+
+	local childrenDict = {}
+	for _, child in children do
+		if childrenDict[child.Name] then
+			error("No system can share the same name. System: {child.Name}")
+		end
+
+		childrenDict[child.Name] = child
+	end
+
+	return lazyLoad(function(index)
+		return childrenDict[index]
+	end)
+end
 
 return {
-	Server = if RunService:IsServer() then ServerScriptService.Server else nil,
-	Client = if RunService:IsClient() then Players.LocalPlayer.PlayerScripts.Client else nil,
-
-	Components = if RunService:IsServer()
-		then ServerScriptService.Server.Components
-		else Players.LocalPlayer.PlayerScripts.Client.Components,
-
-	Systems = if RunService:IsServer()
-		then ServerScriptService.Server.Systems
-		else Players.LocalPlayer.PlayerScripts.Client.Systems,
-
-	-- Services = if RunService:IsServer() then ServerScriptService.Server.Services else nil,
-	-- Controllers = if RunService:IsClient() then Players.LocalPlayer.PlayerScripts.Client.Controllers else nil,
 	Packages = ReplicatedStorage.Packages,
-	Shared = ReplicatedStorage.Shared,
 	Vendor = ReplicatedStorage.Vendor,
 	Assets = ReplicatedStorage.Assets,
-	-- Config = require(ReplicatedStorage.Shared.Config),
-	-- Enums = require(ReplicatedStorage.Shared.Enums),
+	Game = GameFolder,
+	Components = GameFolder.Components,
+	Modules = GameFolder.Modules,
+	Systems = lazyLoadSystems("Systems"),
 }
