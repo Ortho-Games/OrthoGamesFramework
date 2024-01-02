@@ -43,7 +43,7 @@
       "return World.factory($1)"
     ],
     "description": "Create Globals, World, And Component Setup"
-  }
+  },
   "package": {
     "scope": "lua,luau",
     "prefix": "package",
