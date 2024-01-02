@@ -13,6 +13,4 @@ Schedules.userAdded = Sandwich.schedule()
 Schedules.heartbeat = Sandwich.schedule()
 Schedules.gameTick = Sandwich.schedule()
 
-Schedules.tick = Sandwich.tick
-
 return Schedules

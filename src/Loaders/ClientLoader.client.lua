@@ -25,4 +25,4 @@ RunService.Heartbeat:Connect(function(dt)
 	Schedules.heartbeat.start(dt)
 end)
 
-Schedules.tick(RunService.Heartbeat, 3, Schedules.gameTick.start)
+Schedules.gameTick(RunService.Heartbeat, 3, Schedules.gameTick.start)

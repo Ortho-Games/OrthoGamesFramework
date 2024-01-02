@@ -4,7 +4,7 @@ local Globals = require(ReplicatedStorage.Shared.Globals)
 local TableValue = require(Globals.Packages.TableValue)
 local Janitor = require(Globals.Packages.Janitor)
 
-local ClicksDisplay = Globals.Modules.ClicksDisplay
+local ClicksDisplay = require(Globals.Modules.ClicksDisplay)
 
 local World = require(Globals.Shared.Modules.World)
 
