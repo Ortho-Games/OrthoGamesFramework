@@ -44,27 +44,39 @@ local function initEntityPackets(entityPackets)
 	return entityPackets
 end
 
-local function handleReplicate(factory, factoryName, entityPackets, handlePacket)
-	return function(entity, ...)
-		local id = table.find(entityPackets.entities, entity)
-		if not id then
-			id = #entityPackets.entities + 1
-			table.insert(entityPackets.entities, entity)
-			entityPackets.packets[id] = {}
-		end
+-- local function handleReplicate(factory, factoryName, entityPackets, handlePacket)
+-- 	return function(entity, ...)
+-- 		local id = table.find(entityPackets.entities, entity)
+-- 		if not id then
+-- 			id = #entityPackets.entities + 1
+-- 			table.insert(entityPackets.entities, entity)
+-- 			entityPackets.packets[id] = {}
+-- 		end
 
-		local packet = entityPackets.packets[id]
-		packet[factoryName] = packet[factoryName] or {}
-		handlePacket(entity, packet, ...)
+-- 		local packet = entityPackets.packets[id]
+-- 		packet[factoryName] = packet[factoryName] or {}
+-- 		handlePacket(entity, packet, ...)
+-- 	end
+-- end
+
+local function replicateComponent(factory, entity, component)
+	if not factory.ser then
+		-- can't replicate
+		return
 	end
 end
 
 local function injectReplication(factoryName, factory)
+	if not factory.ser then
+		-- can't replicate
+		return
+	end
+
 	factory.added = combine(
 		factory.added,
 		handleReplicate(factory, factoryName, EntityPackets.added, function(entity, packet, component)
 			packet[factoryName] = if typeof(factory.getAddPacket) == "function"
-				then table.pack(factory.getAddPacket(entity, factory.get(entity)))
+				then table.pack(factory.getAddPacket(entity, component))
 				else {}
 		end)
 	)
@@ -95,11 +107,10 @@ local function onInit()
 	initEntityPackets(EntityPackets.changed)
 	initEntityPackets(EntityPackets.removed)
 
-	for _, factoryName in ReplicatedComponents do
-		local factory = Globals.Components[factoryName]
-		if factory then
-			replicatedFactoryToName[factory] = factoryName
-			injectReplication(factoryName, factory)
+	for _, module in Globals.Components:GetChildren() do
+		local factory = require(module)
+		if factory.replicateFlag then
+			injectReplication(factory)
 		end
 	end
 end
@@ -118,35 +129,7 @@ local function onGameTick()
 	initEntityPackets(EntityPackets.removed)
 end
 
-local function getEntityPacket(entity)
-	local packet = {}
-	for factory, component in World.get(entity) do
-		local factoryName = replicatedFactoryToName[factory]
-		if not factoryName then
-			continue
-		end
+local init = Schedules.init.job(onInit)
+Schedules.gameTick.job(onGameTick)
 
-		packet[factoryName] = if typeof(factory.getAddPacket) == "function"
-			then table.pack(factory.getAddPacket(entity, component))
-			else {}
-	end
-
-	return packet
-end
-
-local function onUserAdded(player)
-	local addedPackets = initEntityPackets()
-
-	for entity, components in World.query({}) do
-		table.insert(addedPackets.entities, entity)
-		table.insert(addedPackets.packets, getEntityPacket(entity))
-	end
-
-	Net:RemoteEvent("ReplicateAdd"):FireClient(player, addedPackets)
-end
-
-return {
-	init = Schedules.init.job(onInit),
-	-- userAdded = Schedules.userAdded.job(onUserAdded, UserSetup.userAdded),
-	gameTick = Schedules.gameTick.job(onGameTick),
-}
+return init

@@ -32,24 +32,20 @@ local function LoadData(player, profileStore)
 	return profile
 end
 
-return World.factory({
-	add = function(factory, entity, profileStore)
-		if not (typeof(entity) == "Instance" and entity:IsA("Player")) then
-			warn("Added ProfileComponent to non-player entity...")
-			return
-		end
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
-		local profile = factory.data.LoadData(entity, profileStore)
+local Globals = require(ReplicatedStorage.Shared.Globals)
+local World = require(Globals.Shared.Modules.World)
 
-		return profile
-	end,
+local ProfileComponent = {}
+ProfileComponent.LoadData = LoadData
 
-	remove = function(factory, entity, component)
-		component:Release()
-		entity:Kick()
-	end,
+function ProfileComponent:add(entity, player, profileStore)
+	return self.LoadData(player, profileStore)
+end
 
-	data = {
-		LoadData = LoadData,
-	},
-})
+function ProfileComponent:remove(entity, component)
+	component:Release()
+end
+
+return World.factory(ProfileComponent)

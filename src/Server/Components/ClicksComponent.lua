@@ -4,23 +4,30 @@ local Globals = require(ReplicatedStorage.Shared.Globals)
 local Net = require(Globals.Packages.Net)
 local TableValue = require(Globals.Packages.TableValue)
 
+local Profiles = require(Globals.Local.Modules.Profiles)
+
 local World = require(Globals.Shared.Modules.World)
+local Schedules = require(Globals.Shared.Modules.Schedules)
 
-local ClicksComponent = World.factory({
-	add = function(factory, entity, profile)
-		local self = TableValue.new(profile.Data[factory.data.id])
+local ClicksComponent = {}
+ClicksComponent.profileId = "clicks"
 
-		function self.Changed(index, value)
-			Net:RemoteEvent("ReplicateChange"):FireAllClients(script.Name, entity, { { index, value } })
-		end
+Schedules.init.job(function()
+	Profiles.setDefaultData(ClicksComponent.profileId, {
+		clicks = 0,
+	})
+end)
 
-		return self
-	end,
+function ClicksComponent:add(entity, profile)
+	-- insert constructor for component here
+	local self = TableValue.new(profile.Data[self.profileId])
 
-	data = {
-		id = "clicks",
-	},
-})
+	function self.Changed(index, value)
+		Net:RemoteEvent("ReplicateChange"):FireAllClients(script.Name, entity, { { index, value } })
+	end
+
+	return self
+end
 
 function ClicksComponent.added(entity, componentData)
 	Net:RemoteEvent("ReplicateAdd"):FireAllClients(script.Name, entity, componentData.Value)
@@ -34,4 +41,4 @@ function ClicksComponent.getReplicatePacket(_, componentData)
 	return componentData.Value
 end
 
-return ClicksComponent
+return World.factory(ClicksComponent)

@@ -8,8 +8,7 @@ local Profiles = {
 }
 
 local ProfileTemplate = {}
-
-function Profiles.addDefaultData(id: string, defaultData: { string: any })
+function Profiles.setDefaultData(id: string, defaultData: { string: any })
 	ProfileTemplate[id] = defaultData
 end
 

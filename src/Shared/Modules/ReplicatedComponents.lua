@@ -1,8 +1,8 @@
 return {
-	'Base',
-	'Money',
-	'Owner',
-	'Ore',
-	'Plot',
-	'Purchasable',
+	"Base",
+	"Money",
+	"Owner",
+	"Ore",
+	"Plot",
+	"Purchasable",
 }
