@@ -16,14 +16,16 @@ function ModelComponent:add(entity, model)
 	end
 
 	model.Destroying:Once(function()
-		self.remove(entity)
+		self:remove(entity)
 	end)
 
 	return model
 end
 
 function ModelComponent:remove(entity, model)
-	model:Destroy()
+	if model then
+		model:Destroy()
+	end
 end
 
 Net:Connect("ModelComponentReplication", function() end)

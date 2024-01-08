@@ -2,10 +2,11 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Globals = require(ReplicatedStorage.Shared.Globals)
 local Net = require(Globals.Packages.Net)
+local LemonSignal = require(Globals.Packages.LemonSignal)
 local World = require(Globals.Shared.Modules.World)
 
 local ModelComponent = {}
-ModelComponent.re = Net:RemoteEvent("ModelComponentReplication")
+ModelComponent.addedSignal = LemonSignal.new()
 
 function ModelComponent:add(entity, model)
 	-- insert constructor for component here
@@ -14,7 +15,7 @@ function ModelComponent:add(entity, model)
 			"You created a Model Component with a instance entity and a model behavior set to improved, there will be problems with replication!"
 		)
 	end
-	self.re:FireAllClients(model)
+	self.addedSignal:Fire(entity, model)
 
 	return model
 end

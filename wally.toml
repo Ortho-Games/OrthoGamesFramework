@@ -14,6 +14,7 @@ Janitor = "howmanysmall/janitor@1.15.6"
 Stew = "data-oriented-house/stew@5.2.0"
 Sandwich = "data-oriented-house/sandwich@2.2.1"
 Squash = "data-oriented-house/squash@1.1.6"
-TableValue = "data-oriented-house/tablevalue@2.0.0"
+TableValue = "data-oriented-house/tablevalue@3.0.0"
+LemonSignal = "data-oriented-house/lemonsignal@1.6.0"
 
 # Fusion = "elttob/fusion@0.2.0"

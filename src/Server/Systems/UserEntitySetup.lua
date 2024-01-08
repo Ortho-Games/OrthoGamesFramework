@@ -15,7 +15,21 @@ local World = require(ReplicatedStorage.Shared.Modules.World)
 
 local PlayerProfileStore
 
+local function replicateEntityComponents(player)
+	for entity, components in World.query({}) do
+		for factory, component in components do
+			if factory.addedSignal then
+				factory.addedSignal:Fire(entity, component, player)
+			end
+		end
+	end
+end
+
 local function newUser(player)
+	-- here?
+	-- before the user entity can be added we must first send ALL entities to the player.
+	replicateEntityComponents(player)
+
 	assert(PlayerProfileStore, "Player Profile Didn't Load")
 	local entity = World.entity()
 	local player = PlayerComponent.add(entity, player)

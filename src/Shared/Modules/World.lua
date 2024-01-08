@@ -5,8 +5,10 @@ local RunService = game:GetService("RunService")
 
 local Globals = require(ReplicatedStorage.Shared.Globals)
 local Stew = require(Globals.Packages.Stew)
+local LemonSignal = require(Globals.Packages.LemonSignal)
 
 local world = Stew.world()
+world.addedSignal = LemonSignal
 
 local function assertPersistent(entity: any)
 	if
@@ -26,7 +28,7 @@ local function assertPersistent(entity: any)
 	error("FOOL! YOU DARE SET AN ENTITY TO A NONPERSISTENT INSTANCE!? REPLICATION WILL DIE! CHANGE IT TO A COMPONENT!")
 end
 
-function world.spawned(entity)
+function world:spawned(entity: any)
 	if typeof(entity) == "Instance" then
 		assertPersistent(entity)
 		entity.Destroying:Once(function()
@@ -34,5 +36,7 @@ function world.spawned(entity)
 		end)
 	end
 end
+
+function world:killed(entity: any) end
 
 return world
