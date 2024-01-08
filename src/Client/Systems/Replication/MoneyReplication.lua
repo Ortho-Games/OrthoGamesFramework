@@ -5,28 +5,36 @@ local Net = require(Globals.Packages.Net)
 local Schedules = require(ReplicatedStorage.Shared.Modules.Schedules)
 local MoneyComponent = require(Globals.Local.Components.MoneyComponent)
 
-return Schedules.init.job(function()
-	Net:Connect("MoneyReplicationAdded", function(entity, component)
-		-- insert ser here
+local MoneyReplication = {}
 
-		MoneyComponent.add(entity, component)
-	end)
+MoneyReplication.replicationAdded = function(entity, component)
+	-- insert ser here
 
-	Net:Connect("MoneyReplicationChanged", function(entity, componentDelta)
-		-- insert ser here
+	MoneyComponent.add(entity, component)
+end
 
-		local localComponent = MoneyComponent.get(entity)
-		if not localComponent then
-			return
-		end
+MoneyReplication.replicationChanged = function(entity, componentDelta)
+	-- insert ser here
 
-		for k, v in componentDelta do
-			localComponent[k] = v
-		end
-	end)
+	local localComponent = MoneyComponent.get(entity)
+	if not localComponent then
+		return
+	end
 
-	Net:Connect("MoneyReplicationRemoved", function(entity)
-		MoneyComponent.remove(entity)
-	end)
+	for k, v in componentDelta do
+		localComponent[k] = v
+	end
+end
+
+MoneyReplication.replicationRemoved = function(entity)
+	MoneyComponent.remove(entity)
+end
+
+MoneyReplication.init = Schedules.init.job(function()
+	Net:Connect("MoneyReplicationAdded", MoneyReplication.replicationAdded)
+	Net:Connect("MoneyReplicationChanged", MoneyReplication.replicationChanged)
+	Net:Connect("MoneyReplicationRemoved", MoneyReplication.replicationRemoved)
 	-- in this case we have no removed signal because you can detect when a model is destroyed on the client anyways.
 end)
+
+return MoneyReplication

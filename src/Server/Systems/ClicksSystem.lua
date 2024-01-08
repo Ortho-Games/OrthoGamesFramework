@@ -9,7 +9,9 @@ local ClicksComponent = require(Globals.Server.Components.ClicksComponent)
 
 local Profiles = require(Globals.Server.Modules.Profiles)
 
-local function onPlayerClicked(player)
+local ClicksSystem = {}
+
+function ClicksSystem.onPlayerClicked(player)
 	local component = ClicksComponent.get(player)
 
 	if not component then
@@ -23,7 +25,9 @@ local function onPlayerClicked(player)
 end
 
 local function onBoot()
-	Net:Connect("Clicked", onPlayerClicked)
+	Net:Connect("Clicked", ClicksSystem.onPlayerClicked)
 end
 
-return Schedules.boot.job(onBoot)
+ClicksSystem.boot = Schedules.boot.job(onBoot)
+
+return ClicksSystem

@@ -6,22 +6,21 @@ local Globals = require(ReplicatedStorage.Shared.Globals)
 local LemonSignal = require(Globals.Packages.LemonSignal)
 local World = require(ReplicatedStorage.Shared.Modules.World)
 local Schedules = require(ReplicatedStorage.Shared.Modules.Schedules)
-local Profiles = require(Globals.Local.Modules.Profiles)
 
-local profileId = "Money"
+local profileId = "Test"
 Schedules.init.job(function(profileTemplate)
-	Profiles.setDefaultData(profileId, {
-		amount = 0,
-	})
+	profileTemplate[profileId] = {
+		test = 0,
+	}
 end)
 
-local MoneyComponent = {}
-MoneyComponent.addedSignal = LemonSignal.new()
-MoneyComponent.changedSignal = LemonSignal.new()
-MoneyComponent.removedSignal = LemonSignal.new()
+local TestComponent = {}
+TestComponent.addedSignal = LemonSignal.new()
+TestComponent.changedSignal = LemonSignal.new()
+TestComponent.removedSignal = LemonSignal.new()
 
-function MoneyComponent:add(entity: number, profile: {})
-	local component = TableValue.new(profile.Data[profileId])
+function TestComponent:add(entity: number)
+	local component = TableValue.new({})
 
 	function component.Changed(index, value)
 		self.changedSignal:Fire(entity, component)
@@ -32,11 +31,11 @@ function MoneyComponent:add(entity: number, profile: {})
 	return component
 end
 
-function MoneyComponent:remove(entity: number)
+function TestComponent:remove(entity: number)
 	self.removedSignal:Fire(entity)
 end
 
-export type Type = typeof(MoneyComponent.add(...))
-MoneyComponent.Id = "Money"
+export type Type = typeof(TestComponent.add(...))
+TestComponent.Id = "Test"
 
-return World.factory(MoneyComponent)
+return World.factory(TestComponent)

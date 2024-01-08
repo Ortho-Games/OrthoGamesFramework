@@ -19,7 +19,7 @@ dependencies = []
 
 [[package]]
 name = "data-oriented-house/stew"
-version = "5.2.0"
+version = "5.3.2"
 dependencies = []
 
 [[package]]
@@ -30,7 +30,7 @@ dependencies = []
 [[package]]
 name = "dylan/orthogonalframeworkv2"
 version = "0.1.0"
-dependencies = [["Janitor", "howmanysmall/janitor@1.15.6"], ["LemonSignal", "data-oriented-house/lemonsignal@1.6.1"], ["Net", "sleitnick/net@0.2.0"], ["ProfileService", "surnautica/profileservice@1.0.0"], ["Promise", "evaera/promise@4.0.0"], ["Sandwich", "data-oriented-house/sandwich@2.2.1"], ["Signal", "sleitnick/signal@2.0.1"], ["Squash", "data-oriented-house/squash@1.1.6"], ["Stew", "data-oriented-house/stew@5.2.0"], ["TableValue", "data-oriented-house/tablevalue@3.0.0"]]
+dependencies = [["Janitor", "howmanysmall/janitor@1.15.6"], ["LemonSignal", "data-oriented-house/lemonsignal@1.6.1"], ["Net", "sleitnick/net@0.2.0"], ["ProfileService", "surnautica/profileservice@1.0.0"], ["Promise", "evaera/promise@4.0.0"], ["Sandwich", "data-oriented-house/sandwich@2.2.1"], ["Signal", "sleitnick/signal@2.0.1"], ["Squash", "data-oriented-house/squash@1.1.6"], ["Stew", "data-oriented-house/stew@5.3.2"], ["TableValue", "data-oriented-house/tablevalue@3.0.0"]]
 
 [[package]]
 name = "evaera/promise"

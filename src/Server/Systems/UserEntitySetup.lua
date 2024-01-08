@@ -4,18 +4,20 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Globals = require(ReplicatedStorage.Shared.Globals)
 
 local Schedules = require(Globals.Shared.Modules.Schedules)
-local Profiles = require(Globals.Server.Modules.Profiles)
+local Profiles = require(Globals.Local.Modules.Profiles)
+local Janitor = require(Globals.Packages.Janitor)
 
-local PlayerComponent = require("PlayerComponent")
-local ClicksComponent = require(Globals.Components.ClicksComponent)
-local ProfileComponent = require(Globals.Components.ProfileComponent)
-local MoneyComponent = require(Globals.Components.MoneyComponent)
+local PlayerComponent = require(Globals.Local.Components.PlayerComponent)
+local ProfileComponent = require(Globals.Local.Components.ProfileComponent)
+local MoneyComponent = require(Globals.Local.Components.MoneyComponent)
 
 local World = require(ReplicatedStorage.Shared.Modules.World)
 
-local PlayerProfileStore
+local UserEntitySetup = {}
+UserEntitySetup.jan = Janitor.new()
+UserEntitySetup.PlayerProfileStore = nil
 
-local function replicateEntityComponents(player)
+function UserEntitySetup.replicateEntityComponents(player)
 	for entity, components in World.query({}) do
 		for factory, component in components do
 			if factory.addedSignal then
@@ -25,28 +27,33 @@ local function replicateEntityComponents(player)
 	end
 end
 
-local function newUser(player)
+function UserEntitySetup.newUser(player: Player)
 	-- here?
 	-- before the user entity can be added we must first send ALL entities to the player.
-	replicateEntityComponents(player)
+	assert(player, "No player given.")
 
-	assert(PlayerProfileStore, "Player Profile Didn't Load")
+	UserEntitySetup.replicateEntityComponents(player)
+
+	assert(UserEntitySetup.PlayerProfileStore, "Player Profile Didn't Load")
+
 	local entity = World.entity()
-	local player = PlayerComponent.add(entity, player)
-	local profile = ProfileComponent.add(entity, player, PlayerProfileStore)
-	ClicksComponent.add(entity, profile)
+	PlayerComponent.add(entity, player)
+	local profile = ProfileComponent.add(entity, player, UserEntitySetup.PlayerProfileStore)
 	MoneyComponent.add(entity, profile)
 
 	-- replicate?
+	return entity
 end
 
-local function onBoot()
-	PlayerProfileStore = Profiles.createProfileTemplate()
+function UserEntitySetup.onBoot()
+	UserEntitySetup.PlayerProfileStore = Profiles.createProfileTemplate()
 
-	Players.PlayerAdded:Connect(Schedules.userAdded.start)
+	UserEntitySetup.jan:Add(Players.PlayerAdded:Connect(UserEntitySetup.newUser), "Disconnect", "PlayerAdded")
 	for _, player in Players:GetPlayers() do
-		newUser(player)
+		UserEntitySetup.newUser(player)
 	end
 end
 
-return Schedules.boot.job(onBoot)
+UserEntitySetup.boot = Schedules.boot.job(UserEntitySetup.onBoot)
+
+return UserEntitySetup

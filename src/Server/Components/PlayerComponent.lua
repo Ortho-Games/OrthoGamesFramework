@@ -21,8 +21,9 @@ function PlayerComponent:add(entity, player: Player)
 	return player
 end
 
-function PlayerComponent:remove(entity)
-	self._componentToEntity[entity] = nil
+function PlayerComponent:removed(entity, player: Player)
+	warn(`Removing {player.Name}`)
+	self._componentToEntity[player] = nil
 end
 
 function PlayerComponent:getEntityFromComponent(player: Player)

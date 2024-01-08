@@ -12,17 +12,21 @@ local function replicateEntityComponents(entity)
 	end
 end
 
-return Schedules.init.job(function()
-	local removed = Net:RemoteEvent("EntityRemoved")
+local EntityReplication = {}
+EntityReplication.removed = Net:RemoteEvent("EntityRemoved")
 
-	World.addedSignal:Connect(function(entity)
-		-- insert ser here
-		replicateEntityComponents(entity)
-	end)
+function EntityReplication.worldAdded(entity)
+	-- insert ser here
+	replicateEntityComponents(entity)
+end
 
-	World.removedSignal:Connect(function(entity)
-		removed:FireAllClients(-entity)
-	end)
+function EntityReplication.worldRemoved(entity)
+	EntityReplication.removed:FireAllClients(-entity)
+end
 
-	-- in this case we have no removed signal because you can detect when a model is destroyed on the client anyways.
+EntityReplication.init = Schedules.init.job(function()
+	World.addedSignal:Connect(EntityReplication.worldAdded)
+	World.removedSignal:Connect(EntityReplication.worldRemoved)
 end)
+
+return

@@ -7,8 +7,8 @@ local Globals = require(ReplicatedStorage.Shared.Globals)
 local Stew = require(Globals.Packages.Stew)
 local LemonSignal = require(Globals.Packages.LemonSignal)
 
-local world = Stew.world()
-world.addedSignal = LemonSignal
+local world = Stew.world({})
+world.addedSignal = LemonSignal.new()
 
 local function assertPersistent(entity: any)
 	if

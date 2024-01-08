@@ -5,16 +5,20 @@ local Net = require(Globals.Packages.Net)
 local Schedules = require(ReplicatedStorage.Shared.Modules.Schedules)
 local ModelComponent = require(Globals.Local.Components.ModelComponent)
 
-return Schedules.init.job(function()
-	local added = Net:RemoteEvent("ModelReplicationAdded")
+local added = Net:RemoteEvent("ModelReplicationAdded")
 
-	ModelComponent.addedSignal:Connect(function(entity, model, player: Player | nil)
-		-- insert ser here
-		if player then
-			added:FireClient(player, -entity, model)
-		end
-		added:FireAllClients(-entity, model)
-	end)
+local ModelReplication = {}
 
-	-- in this case we have no removed signal because you can detect when a model is destroyed on the client anyways.
+ModelReplication.addedSignal = function(entity, model, player: Player | nil)
+	-- insert ser here
+	if player then
+		added:FireClient(player, -entity, model)
+	end
+	added:FireAllClients(-entity, model)
+end
+
+ModelReplication.init = Schedules.init.job(function()
+	ModelComponent.addedSignal:Connect(ModelReplication.addedSignal)
 end)
+
+return ModelReplication

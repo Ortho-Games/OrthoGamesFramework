@@ -5,10 +5,14 @@ local Net = require(Globals.Packages.Net)
 local Schedules = require(ReplicatedStorage.Shared.Modules.Schedules)
 local ModelComponent = require(Globals.Local.Components.ModelComponent)
 
-return Schedules.init.job(function()
-	Net:Connect("ModelReplicationAdded", function(entity, model)
-		ModelComponent:add(entity, model)
-	end)
+local ModelReplication = {}
 
-	-- in this case we have no removed signal because you can detect when a model is destroyed on the client anyways.
+ModelReplication.replicationAdded = function(entity, model)
+	ModelComponent:add(entity, model)
+end
+
+ModelReplication.init = Schedules.init.job(function()
+	Net:Connect("ModelReplicationAdded", ModelReplication.replicationAdded)
 end)
+
+return ModelReplication
