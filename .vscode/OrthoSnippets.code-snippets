@@ -32,7 +32,6 @@
       "local ReplicatedStorage = game:GetService(\"ReplicatedStorage\")",
       "",
       "local Globals = require(ReplicatedStorage.Shared.Globals)",
-      "local World = require(Globals.Shared.Modules.World)",
       "",
       "local $1 = {}"
       "",
@@ -40,7 +39,7 @@
       " -- insert constructor for component here",
       "end",
       "",
-      "return World.factory($1)"
+      "return Globals.World.factory($1)"
     ],
     "description": "Create Globals, World, And Component Setup"
   },
