@@ -7,15 +7,6 @@ local Schedules = require(Globals.Shared.Modules.Schedules)
 
 local ClicksComponent = require(Globals.Server.Components.ClicksComponent)
 
-local Profiles = require(Globals.Server.Modules.Profiles)
-
-local ClicksSystem = {
-	id = "clicks",
-	defaultData = {
-		clicks = 0,
-	},
-}
-
 local function onPlayerClicked(player)
 	local component = ClicksComponent.get(player)
 
@@ -29,15 +20,8 @@ local function onPlayerClicked(player)
 	end
 end
 
-local function onInit()
-	Profiles.addDefaultData(ClicksSystem.id, ClicksSystem.defaultData)
-end
-
 local function onBoot()
 	Net:Connect("Clicked", onPlayerClicked)
 end
 
-return {
-	init = Schedules.init.job(onInit),
-	boot = Schedules.boot.job(onBoot),
-}
+return Schedules.boot.job(onBoot)

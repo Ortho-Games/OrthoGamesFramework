@@ -13,13 +13,13 @@ function Profiles.addDefaultData(id: string, defaultData: { string: any })
 	ProfileTemplate[id] = defaultData
 end
 
-Profiles.createProfileTemplate = function(): {}
+Profiles.GetProfileStore = function(): {}
 	if Profiles.createdProfileTemplate then
 		error("Function Profiles.createProfileTemplate can only be called once")
 	end
 	Profiles.createdProfileTemplate = true
 
-	print(ProfileTemplate)
+	-- print(ProfileTemplate)
 
 	return ProfileService.GetProfileStore("PlayerData", ProfileTemplate)
 end

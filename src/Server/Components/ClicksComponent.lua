@@ -1,37 +1,24 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Globals = require(ReplicatedStorage.Shared.Globals)
-local Net = require(Globals.Packages.Net)
 local TableValue = require(Globals.Packages.TableValue)
 
-local World = require(Globals.Shared.Modules.World)
+local InjectLifecycleSignals = require(Globals.Shared.Modules.InjectLifecycleSignals)
 
-local ClicksComponent = World.factory({
-	add = function(factory, entity, profile)
-		local self = TableValue.new(profile.Data[factory.data.id])
+local Profiles = require(Globals.Local.Modules.Profiles)
 
-		function self.Changed(index, value)
-			Net:RemoteEvent("ReplicateChange"):FireAllClients(script.Name, entity, { { index, value } })
-		end
+local ClicksComponent = {}
+ClicksComponent.profileID = "clicks"
 
-		return self
-	end,
-
-	data = {
-		id = "clicks",
-	},
+Profiles.addDefaultData(ClicksComponent.profileID, {
+	clicks = 0,
 })
 
-function ClicksComponent.added(entity, componentData)
-	Net:RemoteEvent("ReplicateAdd"):FireAllClients(script.Name, entity, componentData.Value)
+function ClicksComponent:add(entity, profile)
+	-- insert constructor for component here
+	local comp = profile.Data[self.profileID]
+
+	return comp
 end
 
-function ClicksComponent.removed(entity, componentData)
-	Net:RemoteEvent("ReplicateRemove"):FireAllClients(script.Name, entity, componentData.Value)
-end
-
-function ClicksComponent.getReplicatePacket(_, componentData)
-	return componentData.Value
-end
-
-return ClicksComponent
+return Globals.World.factory(InjectLifecycleSignals(ClicksComponent))
