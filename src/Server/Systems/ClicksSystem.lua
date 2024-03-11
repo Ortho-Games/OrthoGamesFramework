@@ -3,8 +3,6 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Globals = require(ReplicatedStorage.Shared.Globals)
 local Net = require(Globals.Packages.Net)
 
-local Schedules = require(Globals.Shared.Modules.Schedules)
-
 local ClicksComponent = require(Globals.Server.Components.ClicksComponent)
 
 local function onPlayerClicked(player)
@@ -24,4 +22,4 @@ local function onBoot()
 	Net:Connect("Clicked", onPlayerClicked)
 end
 
-return Schedules.boot.job(onBoot)
+return Globals.Schedules.boot.job(onBoot)
