@@ -25,6 +25,23 @@
     ],
     "description": "Create the Globals + Replicated Storage variable for easy file creation."
   },
+  "newsys": {
+    "scope": "lua,luau",
+    "prefix": "newsys",
+    "body": [
+      "local ReplicatedStorage = game:GetService(\"ReplicatedStorage\")",
+      "",
+      "local Globals = require(ReplicatedStorage.Shared.Globals)",
+      "",
+      "local $1 = {}",
+      "",
+      "function $1.$3()",
+      "    -- insert logic for system here",
+      "end",
+      "",
+      "return Globals.Schedules.$2.job($1.$3)"
+    ]
+  },
   "newcomp": {
     "scope": "lua,luau",
     "prefix": "newcomp",
@@ -32,15 +49,14 @@
       "local ReplicatedStorage = game:GetService(\"ReplicatedStorage\")",
       "",
       "local Globals = require(ReplicatedStorage.Shared.Globals)",
-      "local World = require(Globals.Shared.Modules.World)",
       "",
-      "local $1 = {}"
+      "local $1 = {}",
       "",
       "function $1:add(entity)",
-      " -- insert constructor for component here",
+      "    -- insert constructor for component here",
       "end",
       "",
-      "return World.factory($1)"
+      "return Globals.World.factory($1)"
     ],
     "description": "Create Globals, World, And Component Setup"
   },
@@ -49,5 +65,17 @@
     "prefix": "package",
     "body": ["local $1 = require(Globals.Packages.$1)"],
     "description": "Shortcut for requiring packages, Requires Globals above it."
+  },
+  "vendor": {
+    "scope": "lua,luau",
+    "prefix": "vendor",
+    "body": ["local $1 = require(Globals.Vendor.$1)"],
+    "description": "Shortcut for requiring vendor packages, Requires Globals above it."
+  },
+  "comps": {
+    "scope": "lua,luau",
+    "prefix": "comps",
+    "body": ["local $2 = require(Globals.Local.Components.${1|BallComponents,GameComponents,UserComponents|}.$2)"],
+    "description": "Shortcut for requiring components, Requires Globals above it."
   }
 }
