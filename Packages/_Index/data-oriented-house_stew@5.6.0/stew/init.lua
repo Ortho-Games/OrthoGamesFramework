@@ -4,91 +4,68 @@
 
 local DEBUG = false
 
-export type Components = { [Factory<any, any, any, ...any, ...any>]: any }
+export type Components = { [Factory<any, any, any, ...any>]: any? }
 
 export type EntityData = Components
 
-export type Add<D, E, C, A..., R...> = (factory: Factory<D, E, C, A..., R...>, entity: E, A...) -> C
+export type Add<D, E, C, A...> = (factory: Factory<D, E, C, A...>, entity: E, A...) -> C
 
-export type Remove<D, E, C, A..., R...> = (factory: Factory<D, E, C, A..., R...>, entity: E, component: C, R...) -> ()
+export type Remove<D, E, C, A...> = (factory: Factory<D, E, C, A...>, entity: E, component: C) -> ()
 
-export type Archetype<D, E, C, A..., R...> = {
-	create: Add<D, E, C, A..., R...>,
-	delete: Remove<D, E, C, A..., R...>?,
+export type Archetype<D, E, C, A...> = {
+	create: Add<D, E, C, A...>,
+	delete: Remove<D, E, C, A...>?,
 	id: string,
-	factory: Factory<D, E, C, A..., R...>,
+	factory: Factory<D, E, C, A...>,
 }
 
-type FactoryArgs<D, E, C, A..., R...> = {
-	add: (Factory<D, E, C, A..., R...>, entity: E, A...) -> C,
-	remove: (Factory<D, E, C, A..., R...>, entity: E, component: C, R...) -> ()?,
+type FactoryArgs<D, E, C, A...> = {
+	add: (Factory<D, E, C, A...>, entity: E, A...) -> C,
+	remove: (Factory<D, E, C, A...>, entity: E, component: C) -> ()?,
 } & D
 
-export type Factory<D, E, C, A..., R...> = {
-	add: (entity: E, A...) -> C,
-	remove: (entity: E, R...) -> (),
-	added: (factory: Factory<D, E, C, A..., R...>, entity: E, component: C) -> ()?,
-	removed: (factory: Factory<D, E, C, A..., R...>, entity: E, component: C) -> ()?,
+export type Factory<D, E, C, A...> = {
 	get: (entity: E) -> C?,
+	remove: (entity: E) -> (),
+	add: (entity: E, A...) -> C,
+	replace: (entity: E, A...) -> C,
+	added: (factory: Factory<D, E, C, A...>, entity: E, component: C) -> ()?,
+	removed: (factory: Factory<D, E, C, A...>, entity: E, component: C) -> ()?,
 } & D
 
-export type Tag<D> = Factory<D, any, boolean, (), ()>
+export type Tag<D> = Factory<D, any, boolean, ()>
 
 type WorldArgs<W> = {
-	built: <D, E, C, A..., R...>(world: World<W>, archetype: Archetype<D, E, C, A..., R...>) -> ()?,
+	built: <D, E, C, A...>(world: World<W>, archetype: Archetype<D, E, C, A...>) -> ()?,
 	spawned: (world: World<W>, entity: any) -> ()?,
 	killed: (world: World<W>, entity: any) -> ()?,
-	added: <D, E, C, A..., R...>(
-		world: World<W>,
-		factory: Factory<D, E, C, A..., R...>,
-		entity: E,
-		component: C
-	) -> ()?,
-	removed: <D, E, C, A..., R...>(
-		world: World<W>,
-		factory: Factory<D, E, C, A..., R...>,
-		entity: E,
-		component: C
-	) -> ()?,
+	added: <D, E, C, A...>(world: World<W>, factory: Factory<D, E, C, A...>, entity: E, component: C) -> ()?,
+	removed: <D, E, C, A...>(world: World<W>, factory: Factory<D, E, C, A...>, entity: E, component: C) -> ()?,
 } & W
 
 export type World<W> = {
 	_nextEntityId: number,
 	_nextFactoryId: number,
-	_factoryToData: { [Factory<any, any, any, ...any, ...any>]: Archetype<any, any, any, ...any, ...any> },
+	_factoryToData: { [Factory<any, any, any, ...any>]: Archetype<any, any, any, ...any> },
 	_entityToData: { [any]: EntityData },
 	_signatureToCollection: {
 		[string]: CollectionData,
 	},
 	_universalCollection: CollectionData,
 	_queryMeta: { __iter: (collection: Collection) -> () -> (any, EntityData) },
-	_id: string,
 
-	built: <D, E, C, A..., R...>(world: World<W>, archetype: Archetype<D, E, C, A..., R...>) -> ()?,
+	built: <D, E, C, A...>(world: World<W>, archetype: Archetype<D, E, C, A...>) -> ()?,
 	spawned: (world: World<W>, entity: any) -> ()?,
 	killed: (world: World<W>, entity: any) -> ()?,
-	added: <D, E, C, A..., R...>(
-		world: World<W>,
-		factory: Factory<D, E, C, A..., R...>,
-		entity: E,
-		component: C
-	) -> ()?,
-	removed: <D, E, C, A..., R...>(
-		world: World<W>,
-		factory: Factory<D, E, C, A..., R...>,
-		entity: E,
-		component: C
-	) -> ()?,
+	added: <D, E, C, A...>(world: World<W>, factory: Factory<D, E, C, A...>, entity: E, component: C) -> ()?,
+	removed: <D, E, C, A...>(world: World<W>, factory: Factory<D, E, C, A...>, entity: E, component: C) -> ()?,
 
-	factory: <D, E, C, A..., R...>(factoryArgs: FactoryArgs<D, E, C, A..., R...>) -> Factory<D, E, C, A..., R...>,
+	factory: <D, E, C, A...>(factoryArgs: FactoryArgs<D, E, C, A...>) -> Factory<D, E, C, A...>,
 	tag: <D>(D) -> Tag<D>,
-	entity: () -> string,
+	entity: () -> number,
 	kill: (entity: any) -> (),
 	get: (entity: any) -> Components,
-	query: (
-		include: { Factory<any, any, any, ...any, ...any> }?,
-		exclude: { Factory<any, any, any, ...any, ...any> }?
-	) -> Collection,
+	query: (include: { Factory<any, any, any, ...any> }?, exclude: { Factory<any, any, any, ...any> }?) -> Collection,
 } & W
 
 local empty = table.freeze {}
@@ -99,12 +76,7 @@ local function toPackedString(x: number)
 		then string.char(x)
 		elseif bytes == 2 then string.char(x % 256, x // 256 % 256)
 		elseif bytes == 3 then string.char(x % 256, x // 256 % 256, x // 256 ^ 2 % 256)
-		elseif bytes == 4 then string.char(
-			x // 256 ^ 0 % 256,
-			x // 256 ^ 1 % 256,
-			x // 256 ^ 2 % 256,
-			x // 256 ^ 3 % 256
-		)
+		elseif bytes == 4 then string.char(x // 256 ^ 0 % 256, x // 256 ^ 1 % 256, x // 256 ^ 2 % 256, x // 256 ^ 3 % 256)
 		elseif bytes == 5 then string.char(
 			x // 256 ^ 0 % 256,
 			x // 256 ^ 1 % 256,
@@ -152,50 +124,6 @@ end
 ]=]
 local Stew = {}
 
---[=[
-	@within Stew
-
-	A function to extract the unique entity and world ids encoded in World.entity() strings.
-
-	Only works if there are less than 256 worlds. (This is reasonable right?)
-
-	```lua
-	local Stew = require(path.to.Stew)
-
-	local w0 = Stew.world()
-	local e00 = w0.entity()
-	local e10 = w0.entity()
-	local e20 = w0.entity()
-
-	print(Stew.tonumber(e00)) -- 0, 0
-	print(Stew.tonumber(e10)) -- 1, 0
-	print(Stew.tonumber(e20)) -- 2, 0
-
-	local w1 = Stew.world()
-
-	local e01 = w1.entity()
-	local e11 = w1.entity()
-	local e21 = w1.entity()
-
-	print(Stew.tonumber(e01)) -- 0, 1
-	print(Stew.tonumber(e11)) -- 1, 1
-	print(Stew.tonumber(e21)) -- 2, 1
-	```
-]=]
-function Stew.tonumber(entity: string)
-	-- Please don't make 256 or more worlds
-	local world, a, b, c, d, e, f, g, h = string.byte(entity, 1, 9)
-	local id = (h or 0) * 256 ^ 7
-		+ (g or 0) * 256 ^ 6
-		+ (f or 0) * 256 ^ 5
-		+ (e or 0) * 256 ^ 4
-		+ (d or 0) * 256 ^ 3
-		+ (c or 0) * 256 ^ 2
-		+ (b or 0) * 256
-		+ a
-	return id, world
-end
-
 local function iter(world: any)
 	return function(collection: Collection)
 		local i = #collection
@@ -214,7 +142,7 @@ local function iter(world: any)
 	end
 end
 
-local function hasAll(entityData: EntityData, factories: { Factory<any, any, any, ...any, ...any> })
+local function hasAll(entityData: EntityData, factories: { Factory<any, any, any, ...any> })
 	for _, factory in factories do
 		if entityData[factory] == nil then
 			return false
@@ -224,7 +152,7 @@ local function hasAll(entityData: EntityData, factories: { Factory<any, any, any
 	return true
 end
 
-local function hasAny(entityData: EntityData, factories: { Factory<any, any, any, ...any, ...any> })
+local function hasAny(entityData: EntityData, factories: { Factory<any, any, any, ...any> })
 	for _, factory in factories do
 		if entityData[factory] ~= nil then
 			return true
@@ -235,11 +163,7 @@ local function hasAny(entityData: EntityData, factories: { Factory<any, any, any
 end
 
 local hashIds = {}
-local function hash(
-	world: any,
-	include: { Factory<any, any, any, ...any, ...any> }?,
-	exclude: { Factory<any, any, any, ...any, ...any> }?
-)
+local function hash(world: any, include: { Factory<any, any, any, ...any> }?, exclude: { Factory<any, any, any, ...any> }?)
 	table.clear(hashIds)
 	if include and include[1] ~= nil then
 		for _, factory in include do
@@ -267,11 +191,7 @@ local function hash(
 	return signature
 end
 
-local function getCollectionData(
-	world: any,
-	include: { Factory<any, any, any, ...any, ...any> }?,
-	exclude: { Factory<any, any, any, ...any, ...any> }?
-)
+local function getCollectionData(world: any, include: { Factory<any, any, any, ...any> }?, exclude: { Factory<any, any, any, ...any> }?)
 	local signature = hash(world, include, exclude)
 	if signature == '' then
 		if DEBUG then
@@ -289,8 +209,7 @@ local function getCollectionData(
 	end
 
 	local indices = {}
-	local entities =
-		setmetatable({}, world._queryMeta :: { __iter: (collection: Collection) -> () -> (any, EntityData) })
+	local entities = setmetatable({}, world._queryMeta :: { __iter: (collection: Collection) -> () -> (any, EntityData) })
 	local collectionData = {
 		entities = entities,
 		indices = indices,
@@ -320,14 +239,11 @@ end
 type CollectionData = typeof({
 	entities = setmetatable({} :: { any }, {} :: { __iter: (collection: Collection) -> () -> (any, EntityData) }),
 	indices = {} :: { [any]: number },
-	include = nil :: { Factory<any, any, any, ...any, ...any> }?,
-	exclude = nil :: { Factory<any, any, any, ...any, ...any> }?,
+	include = nil :: { Factory<any, any, any, ...any> }?,
+	exclude = nil :: { Factory<any, any, any, ...any> }?,
 })
 
-export type Collection = typeof(setmetatable(
-	{} :: { any },
-	{} :: { __iter: (collection: Collection) -> () -> (any, EntityData) }
-))
+export type Collection = typeof(setmetatable({} :: { any }, {} :: { __iter: (collection: Collection) -> () -> (any, EntityData) }))
 
 local function tagAdd(factory, entity: any)
 	return true
@@ -375,7 +291,7 @@ local function unregister<W>(world: World<W>, entity: any)
 	world._entityToData[entity] = nil
 
 	if world.killed then
-		world.killed(entity)
+		world.killed(world, entity)
 	end
 end
 
@@ -435,9 +351,9 @@ end
 --[=[
 	@within World
 	@interface Archetype
-	.factory Factory<D, E, C, A..., R...>,
+	.factory Factory<D, E, C, A...>,
 	.create (factory, entity: E, A...) -> C,
-	.delete (factory, entity: E, component: C, R...) -> ()
+	.delete (factory, entity: E, component: C) -> ()
 	.signature string,
 ]=]
 
@@ -445,13 +361,11 @@ end
 	@within Stew
 	@interface World
 	. added (world: Worldfactory: Factory, entity: any, component: any)?
-	. removed (world: Wo, rldfactory: Factory, entity: any, component: any)?
-	. spawned (world: Worl, dentity: any) -> ()?
+	. removed (world: World, factory: Factory, entity: any, component: any)?
+	. spawned (world: World, dentity: any) -> ()?
 	. killed (world: World, entity: any) -> ()?
 	. built (world: World, archetype: Archetype) -> ()?
 ]=]
-
-Stew._nextWorldId = -1
 
 --[=[
 	@within Stew
@@ -496,8 +410,6 @@ function Stew.world<W>(worldArgs: WorldArgs<W>)
 	world._entityToData = {}
 	world._signatureToCollection = {}
 
-	Stew._nextWorldId += 1
-	world._id = toPackedString(Stew._nextWorldId)
 	world._queryMeta = { __iter = iter(world) }
 	world._universalCollection = {
 		entities = setmetatable({} :: { any }, world._queryMeta),
@@ -505,14 +417,14 @@ function Stew.world<W>(worldArgs: WorldArgs<W>)
 	}
 
 	if DEBUG then
-		print('Stew.world', '= w' .. world._id)
+		print 'Stew.world'
 	end
 
 	--[=[
 		@within World
 		@interface FactoryArgs
 		.add (factory: Factory, entity: E, A...) -> C
-		.remove (factory: Factory, entity: E, component: C, R...) -> ()?
+		.remove (factory: Factory, entity: E, component: C) -> ()?
 		.[any] any
 	]=]
 
@@ -520,7 +432,7 @@ function Stew.world<W>(worldArgs: WorldArgs<W>)
 		@within World
 		@interface Factory
 		.add (entity: E, A...) -> C
-		.remove (entity: E, component: C, R...) -> ()
+		.remove (entity: E, component: C) -> ()
 		.get (entity: E),
 		.added (Factory, entity: E, component: C) -> ()?
 		.removed (Factory, entity: E, component: C) -> ()?
@@ -579,25 +491,26 @@ function Stew.world<W>(worldArgs: WorldArgs<W>)
 		function body:removed(entity: Instance, component: Model) end
 		```
 	]=]
-	function world.factory<D, E, C, A..., R...>(factoryArgs: FactoryArgs<D, E, C, A..., R...>)
+	function world.factory<D, E, C, A...>(factoryArgs: FactoryArgs<D, E, C, A...>)
 		--[=[
 			@class Factory
 
 			Factories are little objects responsible for adding and removing their specific type of component from entities. They are also used to access their type of component from entities and queries. They are well, component factories!
 		]=]
-		local factory = (factoryArgs :: any) :: Factory<D, E, C, A..., R...>
+		local factory = (factoryArgs :: any) :: Factory<D, E, C, A...>
 
 		world._nextFactoryId += 1
 
+		local create, delete = factoryArgs.add, factoryArgs.remove
 		local archetype = {
 			factory = factory,
 			id = toPackedString(world._nextFactoryId),
-			create = factoryArgs.add,
-			delete = factoryArgs.remove,
+			create = create,
+			delete = delete,
 		}
 
 		if DEBUG then
-			print('world.factory', 'w' .. world._id, 'f' .. archetype.id)
+			print('world.factory', 'f' .. archetype.id)
 		end
 
 		--[=[
@@ -628,24 +541,17 @@ function Stew.world<W>(worldArgs: WorldArgs<W>)
 		]=]
 		function factory.add(entity: E, ...: A...): C
 			if DEBUG then
-				print(
-					'factory.add',
-					'w' .. world._id,
-					'f' .. archetype.id,
-					if type(entity) == 'string' then 'e' .. ({ entity })[1] else entity,
-					'args',
-					...
-				)
+				print('factory.add', 'f' .. archetype.id, if type(entity) == 'string' then 'e' .. ({ entity })[1] else entity, 'args', ...)
 			end
 
 			local entityData = world._entityToData[entity]
 			if not entityData then
 				entityData = register(world, entity)
 			elseif entityData[factory] then
-				return entityData[factory]
+				return entityData[factory] :: C
 			end
 
-			local component = archetype.create(factory, entity, ...)
+			local component = create(factory, entity, ...)
 			if component == nil then
 				return component
 			end
@@ -667,8 +573,7 @@ function Stew.world<W>(worldArgs: WorldArgs<W>)
 		--[=[
 			@within Factory
 			@param entity any
-			@param ... any
-			@return void?
+			@return ()
 
 			Removes the factory's type of component from the entity. If the entity is unregistered, nothing happens.
 
@@ -685,16 +590,9 @@ function Stew.world<W>(worldArgs: WorldArgs<W>)
 			Move.remove(entity)
 			```
 		]=]
-		function factory.remove(entity: E, ...: R...)
+		function factory.remove(entity: E)
 			if DEBUG then
-				print(
-					'factory.remove',
-					'w' .. world._id,
-					'f' .. archetype.id,
-					if type(entity) == 'string' then 'e' .. ({ entity })[1] else entity,
-					'args',
-					...
-				)
+				print('factory.remove', 'f' .. archetype.id, if type(entity) == 'string' then 'e' .. ({ entity })[1] else entity)
 			end
 
 			local entityData = world._entityToData[entity]
@@ -707,8 +605,8 @@ function Stew.world<W>(worldArgs: WorldArgs<W>)
 				return
 			end
 
-			if archetype.delete then
-				archetype.delete(factory, entity, component, ...)
+			if delete then
+				delete(factory, entity, component)
 			end
 
 			entityData[factory] = nil
@@ -755,14 +653,69 @@ function Stew.world<W>(worldArgs: WorldArgs<W>)
 		function factory.get(entity: E): C?
 			local entityData = world._entityToData[entity]
 			if DEBUG then
-				print(
-					'factory.get',
-					'w' .. world._id,
-					'f' .. archetype.id,
-					if type(entity) == 'string' then 'e' .. ({ entity })[1] else entity
-				)
+				print('factory.get', 'f' .. archetype.id, if type(entity) == 'string' then 'e' .. ({ entity })[1] else entity)
 			end
 			return if entityData then entityData[factory] else nil
+		end
+
+		--[=[
+			@within Factory
+			@param entity any
+			@param ...
+			@return Component
+
+			An optimized shorthand for checking if the component exists, removing it, and adding it again.
+
+			Does not call any callbacks or change any collections.
+			```lua
+			local World = require(path.to.World)
+
+			local Fly = World.factory { ... }
+
+			local entity = World.entity()
+
+			-- Instead of doing
+			if Fly.get(entity) then
+				Fly.remove(entity)
+			end
+			Fly.add(entity, 10)
+
+			-- You can do
+			Fly.replace(entity, 10)
+			```
+		]=]
+		function factory.replace(entity: E, ...: A...): C
+			local entityData = world._entityToData[entity]
+			local oldComponent = if entityData then (entityData[factory] :: C) else nil
+			if oldComponent then
+				if delete then
+					delete(factory, entity, oldComponent)
+				end
+
+				entityData[factory] = nil
+			end
+
+			local newComponent = create(factory, entity, ...)
+			if newComponent == nil then
+				return newComponent
+			end
+
+			if not entityData then
+				entityData = register(world, entity)
+			end
+			entityData[factory] = newComponent
+
+			if not oldComponent then
+				if factory.added then
+					factory.added(factory, entity, newComponent)
+				end
+
+				if world.added then
+					world.added(world, factory, entity, newComponent)
+				end
+			end
+
+			return newComponent
 		end
 
 		world._factoryToData[factory] = archetype
@@ -771,7 +724,7 @@ function Stew.world<W>(worldArgs: WorldArgs<W>)
 			world.built(world, archetype :: any)
 		end
 
-		return factory :: any
+		return factory
 	end
 
 	--[=[
@@ -801,17 +754,16 @@ function Stew.world<W>(worldArgs: WorldArgs<W>)
 		newTag.add = tagAdd
 		newTag.remove = nil
 
-		local a = world.factory(newTag) :: Tag<D>
-		return a
+		return world.factory(newTag) :: Tag<D>
 	end
 
 	--[=[
 		@within World
-		@return string
+		@return number
 
 		Creates an arbitrary entity. Keep in mind, in Stew, *anything* can be an Entity (except nil). If you don't have a pre-existing object to use as an entity, this will create a unique-across-worlds identifier you can use.
 
-		Can be sent over remotes and is unique across worlds!
+		Can be sent over remotes, though not unique across worlds. Consider attaching distinguishing information if using in other worlds.
 
 		```lua
 		local World = require(path.to.World)
@@ -834,7 +786,7 @@ function Stew.world<W>(worldArgs: WorldArgs<W>)
 			print('world.entity', 'e' .. world._nextEntityId)
 		end
 
-		return world._id .. toPackedString(world._nextEntityId)
+		return world._nextEntityId
 	end
 
 	--[=[
@@ -856,7 +808,7 @@ function Stew.world<W>(worldArgs: WorldArgs<W>)
 	]=]
 	function world.kill(entity: any)
 		if DEBUG then
-			print('world.entity', if type(entity) == 'string' then 'e' .. ({ entity })[1] else entity, 'w' .. world._id)
+			print('world.entity', if type(entity) == 'string' then 'e' .. ({ entity })[1] else entity)
 		end
 
 		local entityData = world._entityToData[entity]
@@ -882,7 +834,7 @@ function Stew.world<W>(worldArgs: WorldArgs<W>)
 		for factory, component in entityData do
 			local archetype = world._factoryToData[factory]
 			if archetype.delete then
-				archetype.delete(factory, entity)
+				archetype.delete(factory, entity, component)
 			end
 
 			if factory.removed then
@@ -950,7 +902,7 @@ function Stew.world<W>(worldArgs: WorldArgs<W>)
 	]=]
 	function world.get(entity: any): Components
 		if DEBUG then
-			print('world.entity', if type(entity) == 'string' then 'e' .. ({ entity })[1] else entity, 'w' .. world._id)
+			print('world.entity', if type(entity) == 'string' then 'e' .. ({ entity })[1] else entity)
 		end
 
 		return world._entityToData[entity] or empty
@@ -1001,10 +953,7 @@ function Stew.world<W>(worldArgs: WorldArgs<W>)
 		end)
 		```
 	]=]
-	function world.query(
-		include: { Factory<any, any, any, ...any, ...any> }?,
-		exclude: { Factory<any, any, any, ...any, ...any> }?
-	): Collection
+	function world.query(include: { Factory<any, any, any, ...any> }?, exclude: { Factory<any, any, any, ...any> }?): Collection
 		if DEBUG then
 			local includes = {}
 			local excludes = {}
