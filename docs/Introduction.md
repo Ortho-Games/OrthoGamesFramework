@@ -1,5 +1,7 @@
 # Introduction
 
+Version 0.5.0
+
 Orthogonal Games Framework is a game framework based on the ECS system Stew and makes heavy use of the Buffet Bundle Toolchain provided and maintained by Data Oriented House.
 
 This project serves an example project meant to showcase the usage and guide for different patterns required to use the system for effective game development.
