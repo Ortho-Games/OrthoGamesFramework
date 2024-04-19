@@ -2,7 +2,8 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Globals = require(ReplicatedStorage.Shared.Globals)
-local World = require(Globals.Shared.Modules.World)
+
+local Player = require(Globals.Local.Core.Player.Components.Player)
 
 local function LoadData(player, profileStore)
 	if not profileStore then
@@ -19,7 +20,7 @@ local function LoadData(player, profileStore)
 	profile:AddUserId(player.UserId)
 	profile:Reconcile()
 	profile:ListenToRelease(function()
-		print(profile.Data)
+		-- print(profile.Data)
 		profile = nil
 		player:Kick()
 	end)
@@ -32,24 +33,18 @@ local function LoadData(player, profileStore)
 	return profile
 end
 
-return World.factory({
-	add = function(factory, entity, profileStore)
-		if not (typeof(entity) == "Instance" and entity:IsA("Player")) then
-			warn("Added ProfileComponent to non-player entity...")
-			return
-		end
+local Component = {}
 
-		local profile = factory.data.LoadData(entity, profileStore)
+function Component:add(entity, player, profileStore)
+	local profile = LoadData(player, profileStore)
+	return profile
+end
 
-		return profile
-	end,
+function Component:removed(entity, component)
+	local player = Player.get(entity)
 
-	remove = function(factory, entity, component)
-		component:Release()
-		entity:Kick()
-	end,
+	component:Release()
+	player:Kick()
+end
 
-	data = {
-		LoadData = LoadData,
-	},
-})
+return Globals.World.factory(Component)

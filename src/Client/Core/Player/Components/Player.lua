@@ -5,10 +5,10 @@ local Globals = require(ReplicatedStorage.Shared.Globals)
 local InjectLifecycleSignals =
 	require(Globals.Shared.Modules.InjectLifecycleSignals)
 
-local Character = {}
+local Player = {}
 
-function Character:add(entity, character)
-	return character
+function Player:add(entity, player)
+	return player
 end
 
-return Globals.World.factory(InjectLifecycleSignals(Character))
+return Globals.World.factory(InjectLifecycleSignals(Player))

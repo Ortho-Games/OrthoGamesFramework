@@ -9,11 +9,11 @@ local Profiles = {
 
 local ProfileTemplate = {}
 
-function Profiles.addDefaultData(id: string, defaultData: { string: any })
+function Profiles.addDefaultData(id: string, defaultData: { [string]: any })
 	ProfileTemplate[id] = defaultData
 end
 
-Profiles.GetProfileStore = function(): {}
+Profiles.GetProfileStore = function()
 	if Profiles.createdProfileTemplate then
 		error("Function Profiles.createProfileTemplate can only be called once")
 	end
