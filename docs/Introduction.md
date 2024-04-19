@@ -12,22 +12,36 @@ Modules
 
 Loaders
 
-- Provides basic boot for both server & client scripts. Each script implements a descendants module require and the functionality for each schedules start.
+- Provides basic boot for both server & client scripts. Each script implements a descendants module require and the functionality for each schedules start calls.
 
 Server
 
-- Systems: Module scripts designed to operate on components.
-- Components: Module scripts that return Stew factories.
-- Modules: Random access modules for server side access only.
+- Classes: Module scripts that are meant to build prebuilt objects by creating new entities and adding on default components.
+
+- Core: Groups of files for organization purposes.
+  - Group Folder: A folder for a group of related components folders.
+    - Components: A folder for holding component modules related to the group.
+    - Jobs: A folder for holding modules that return sandwich jobs for global jobs.
+    - Modules: Modules that contain libraries of functions related to the group.
+    - Functions: Modules that return functions.
+    - Types: Modules that hold exported types used by the group.
 
 Client
 
-- Systems: Module scripts designed to operate on components.
-- Components: Module scripts that return Stew factories.
-- Modules: Module scripts for client side access only.
+- Classes: Module scripts that are meant to build prebuilt objects by creating new entities and adding on default components.
+
+- Core: Groups of files for organization purposes.
+  - Group Folder: A folder for a group of related components folders, this folder can also house subgroups.
+    - Components: A folder for holding component modules related to the group.
+    - Jobs: A folder for holding modules that return sandwich jobs for global jobs.
+    - Modules: Modules that contain libraries of functions related to the group.
+    - Functions: Modules that return functions.
+    - Enums: Modules that hold lists of predefined lists of categories.
+    - Types.lua: A module that hold exported types used by the group.
 
 Shared
 
+- Config: Folder for housing module files that provide configuration for various modules.
 - Modules
 
   - Schedules, this provides Sandwich schedule objects:
@@ -36,14 +50,9 @@ Shared
     - heartbeat: runs once every heartbeat after boot
     - gameTick: runs once every set heartbeats after boot
 
-- World: a reference to the Stew World that houses all entities on the server and client.
-
 - Globals: A script required by most scripts to give quick access to other scripts. Globals contains the following items in it's table.
-  - Server: a reference to the Server Folder
-  - Client: a reference to the Client Folder
+  - Local: a reference to the Server or Client folder depending on where Globals is required from.
   - Shared: a reference to the Shared Folder
-  - Components: a reference to the server/client Components Folder
-  - Systems: a reference to the server/client Components Folder
   - Packages: a reference to the Package module created by Wally
   - Vendor: a reference to the Vendor folder in Replicated Storage
   - Assets: a reference to the Assets folder in Replicated Storage

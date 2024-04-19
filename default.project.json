@@ -26,8 +26,11 @@
 
     "ServerScriptService": {
       "ServerLoader": {
-        "$path": "src/Loaders/ServerLoader.server.lua"
-      },
+        "$path": "src/Start/Server.server.lua"
+      }
+    },
+
+    "ServerStorage": {
       "Server": {
         "$path": "src/Server"
       }
@@ -36,7 +39,7 @@
     "StarterPlayer": {
       "StarterPlayerScripts": {
         "ClientLoader": {
-          "$path": "src/Loaders/ClientLoader.client.lua"
+          "$path": "src/Start/Client.client.lua"
         }
       }
     }
