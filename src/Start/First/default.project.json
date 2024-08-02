@@ -1,0 +1,9 @@
+{
+  "name": "First",
+  "tree": {
+    "$path": "../",
+    "Packages": {
+      "$path": "Packages"
+    }
+  }
+}

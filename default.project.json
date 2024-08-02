@@ -2,7 +2,6 @@
   "name": "OrthogonalFrameworkV2",
   "tree": {
     "$className": "DataModel",
-
     "ReplicatedStorage": {
       "Packages": {
         "$path": "Packages"
@@ -14,33 +13,34 @@
         "$className": "Folder",
         "$ignoreUnknownInstances": true
       },
-      
       "Shared": {
         "$path": "src/Shared"
       },
-
       "Client": {
         "$path": "src/Client"
       }
     },
-
     "ServerScriptService": {
       "ServerLoader": {
-        "$path": "src/Start/Server.server.lua"
+        "$path": "src/Start/Server"
       }
     },
-
     "ServerStorage": {
       "Server": {
         "$path": "src/Server"
       }
     },
-
     "StarterPlayer": {
       "StarterPlayerScripts": {
         "ClientLoader": {
-          "$path": "src/Start/Client.client.lua"
+          "$path": "src/Start/Client"
         }
+      }
+    },
+    "ReplicatedFirst": {
+      "First": {
+        "$path": "src/Start/First",
+        "$ignoreUnknownInstances": true
       }
     }
   }
