@@ -1,0 +1,14 @@
+[package]
+name = "data-oriented-house/stew"
+version = "5.6.0"
+registry = "https://github.com/UpliftGames/wally-index"
+licence = "MIT"
+authors = ["Sona"]
+
+description = "A comparably fast Entity-Component module used for creating and composing entity tables with components. Enabling ECS patterns without all the frameworking. It offers a concise API for constructing components, creating entities and components, and getting intersections of all entities with certain components."
+
+realm = "shared"
+
+exclude = ["README.md"]
+
+[dependencies]
