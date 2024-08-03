@@ -390,7 +390,7 @@ function Util.regularPolygon(n: number, radius: number, height: number): Model
 	local center = CFrame.new() * CFrame.Angles(0, rotationAngle / 2, 0)
 
 	local model = Instance.new("Model")
-	for i = 1, n do
+	for _ = 1, n do
 		local a = (center * CFrame.new(0, n, radius)).Position
 		center *= CFrame.Angles(0, rotationAngle, 0)
 		local b = (center * CFrame.new(0, n, radius)).Position
@@ -404,7 +404,7 @@ end
 function Util.playSound(sound: Sound, parent: Instance): Sound
 	local newSound = sound:Clone()
 	newSound.Parent = parent
-	newSound.Stopped:Once(function(a0: string)
+	newSound.Stopped:Once(function(_)
 		newSound:Destroy()
 	end)
 	newSound:Play()

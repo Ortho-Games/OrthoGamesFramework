@@ -11,7 +11,7 @@ local Net = require(ReplicatedStorage.Packages.Net)
 
 local ServerLoadedRE = Net:RemoteEvent("ServerLoaded")
 
-local function callPrintTime(name, func, ...)
+local function callWithBenchmark(name, func, ...)
 	local m = if RunService:IsServer() then "[Server]" else "[Client]"
 	local s = os.clock()
 	warn(`{m} Starting {name}...`)
@@ -20,20 +20,20 @@ local function callPrintTime(name, func, ...)
 	return table.unpack(r)
 end
 
-callPrintTime(
+callWithBenchmark(
 	"server requires",
 	Global.Util.requireDescendants,
 	ServerStorage.Server
 )
 
-callPrintTime(
+callWithBenchmark(
 	"shared requires",
 	Global.Util.requireDescendants,
 	ReplicatedStorage.Shared
 )
 
-callPrintTime("initialization", Global.Schedules.Init.start)
-callPrintTime("boot", ServerStorage.Server)
+callWithBenchmark("initialization", Global.Schedules.Init.start)
+callWithBenchmark("boot", ServerStorage.Server)
 
 ServerLoadedRE:FireAllClients()
 Players.PlayerAdded:Connect(function(player)
