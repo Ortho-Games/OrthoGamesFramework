@@ -1,5 +1,5 @@
 [package]
-name = "dylan/orthogonalframeworkv2"
+name = "ortho-games/orthogamesframework"
 version = "0.1.0"
 registry = "https://github.com/UpliftGames/wally-index"
 realm = "shared"
@@ -19,6 +19,8 @@ TableValue = "data-oriented-house/tablevalue@3.0.0"
 TopbarPlus = "legitatx/topbarplus@3.0.5"
 Fusion = "mattschrubb/fusion@1.2.5"
 # Fusion = "elttob/fusion@0.2.0"
+
+OrthoUtil = "ortho-games/orthoutil@1.0.0"
 
 [server-dependencies]
 Cmdr = "evaera/cmdr@1.12.0"
