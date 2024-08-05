@@ -33,12 +33,7 @@ callWithBenchmark(
 )
 
 callWithBenchmark("initialization", Global.Schedules.Init.start)
-callWithBenchmark("boot", ServerStorage.Server)
-
-ServerLoadedRE:FireAllClients()
-Players.PlayerAdded:Connect(function(player)
-	ServerLoadedRE:FireClient(player)
-end)
+callWithBenchmark("boot", Global.Schedules.Boot.start)
 
 for scheduleName, schedule in Global.Schedules :: any do
 	pcall(function()

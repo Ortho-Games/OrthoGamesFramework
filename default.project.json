@@ -28,6 +28,9 @@
     "ServerStorage": {
       "Server": {
         "$path": "src/Server"
+      },
+      "Packages": {
+        "$path": "ServerPackages"
       }
     },
     "StarterPlayer": {
@@ -39,8 +42,7 @@
     },
     "ReplicatedFirst": {
       "First": {
-        "$path": "src/Start/First",
-        "$ignoreUnknownInstances": true
+        "$path": "src/Start/First"
       }
     }
   }

@@ -19,6 +19,7 @@ TableValue = "data-oriented-house/tablevalue@3.0.0"
 TopbarPlus = "legitatx/topbarplus@3.0.5"
 Fusion = "mattschrubb/fusion@1.2.5"
 # Fusion = "elttob/fusion@0.2.0"
+Moonlite = "maximumadhd/moonlite@0.9.0"
 
 [server-dependencies]
 Cmdr = "evaera/cmdr@1.12.0"

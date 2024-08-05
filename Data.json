@@ -1,0 +1,358 @@
+{
+  "Information": {
+    "Created": 1722711332,
+    "ExportPriority": "Action",
+    "Modified": 1722832241,
+    "Length": 900,
+    "CamRef": {
+      "InstanceTypes": [
+        "DataModel",
+        "Workspace",
+        "Model",
+        "Part"
+      ],
+      "ItemType": "BasePart",
+      "InstanceNames": [
+        "game",
+        "Workspace",
+        "Model",
+        "Reference"
+      ]
+    },
+    "Looped": false
+  },
+  "Items": [
+    {
+      "Path": {
+        "InstanceTypes": [
+          "Model",
+          "Model",
+          "Model",
+          "Model",
+          "MeshPart"
+        ],
+        "ItemType": "BasePart",
+        "InstanceNames": [
+          "Model",
+          "OrthogLogo",
+          "Logo",
+          "Center",
+          "Bottom"
+        ]
+      }
+    },
+    {
+      "Path": {
+        "InstanceTypes": [
+          "Model",
+          "Model",
+          "Part",
+          "ParticleEmitter"
+        ],
+        "ItemType": "ParticleEmitter",
+        "InstanceNames": [
+          "Model",
+          "OrthogLogo",
+          "Particles",
+          "ParticleEmitter"
+        ]
+      }
+    },
+    {
+      "Path": {
+        "InstanceTypes": [
+          "Model",
+          "Model",
+          "Part",
+          "SurfaceLight"
+        ],
+        "ItemType": "SurfaceLight",
+        "InstanceNames": [
+          "Model",
+          "OrthogLogo",
+          "Light",
+          "SurfaceLight"
+        ]
+      }
+    },
+    {
+      "Path": {
+        "InstanceTypes": [
+          "Model",
+          "Model",
+          "Model",
+          "Model",
+          "MeshPart"
+        ],
+        "ItemType": "BasePart",
+        "InstanceNames": [
+          "Model",
+          "OrthogLogo",
+          "Logo",
+          "Exterior",
+          "Outline"
+        ]
+      }
+    },
+    {
+      "Path": {
+        "InstanceTypes": [
+          "Model",
+          "Model",
+          "Model",
+          "MeshPart"
+        ],
+        "ItemType": "BasePart",
+        "InstanceNames": [
+          "Model",
+          "OrthogLogo",
+          "Logo",
+          "Interior"
+        ]
+      }
+    },
+    {
+      "Path": {
+        "InstanceTypes": [
+          "Model",
+          "Model",
+          "Model",
+          "MeshPart"
+        ],
+        "ItemType": "BasePart",
+        "InstanceNames": [
+          "Model",
+          "OrthogLogo",
+          "Logo",
+          "Glow"
+        ]
+      }
+    },
+    {
+      "Path": {
+        "InstanceTypes": [
+          "Model",
+          "Part",
+          "SpotLight"
+        ],
+        "ItemType": "SpotLight",
+        "InstanceNames": [
+          "Model",
+          "LeverLight",
+          "SpotLight"
+        ]
+      }
+    },
+    {
+      "Path": {
+        "InstanceTypes": [
+          "DataModel",
+          "Workspace",
+          "Camera"
+        ],
+        "ItemType": "Camera",
+        "InstanceNames": [
+          "game",
+          "Workspace",
+          "CurrentCamera"
+        ]
+      }
+    },
+    {
+      "Path": {
+        "InstanceTypes": [
+          "Model",
+          "Model",
+          "Model",
+          "MeshPart"
+        ],
+        "ItemType": "BasePart",
+        "InstanceNames": [
+          "Model",
+          "Font",
+          "Games",
+          "A"
+        ]
+      }
+    },
+    {
+      "Path": {
+        "InstanceTypes": [
+          "Model",
+          "Model",
+          "Model",
+          "MeshPart"
+        ],
+        "ItemType": "BasePart",
+        "InstanceNames": [
+          "Model",
+          "Font",
+          "Games",
+          "E"
+        ]
+      }
+    },
+    {
+      "Path": {
+        "InstanceTypes": [
+          "Model",
+          "Model",
+          "Model",
+          "MeshPart"
+        ],
+        "ItemType": "BasePart",
+        "InstanceNames": [
+          "Model",
+          "Font",
+          "Games",
+          "G"
+        ]
+      }
+    },
+    {
+      "Path": {
+        "InstanceTypes": [
+          "Model",
+          "Model",
+          "Model",
+          "MeshPart"
+        ],
+        "ItemType": "BasePart",
+        "InstanceNames": [
+          "Model",
+          "Font",
+          "Games",
+          "M"
+        ]
+      }
+    },
+    {
+      "Path": {
+        "InstanceTypes": [
+          "Model",
+          "Model",
+          "Model",
+          "MeshPart"
+        ],
+        "ItemType": "BasePart",
+        "InstanceNames": [
+          "Model",
+          "Font",
+          "Games",
+          "S"
+        ]
+      }
+    },
+    {
+      "Path": {
+        "InstanceTypes": [
+          "Model",
+          "Model",
+          "Model",
+          "MeshPart"
+        ],
+        "ItemType": "BasePart",
+        "InstanceNames": [
+          "Model",
+          "Font",
+          "Ortho",
+          "H"
+        ]
+      }
+    },
+    {
+      "Path": {
+        "InstanceTypes": [
+          "Model",
+          "Model",
+          "Model",
+          "MeshPart"
+        ],
+        "ItemType": "BasePart",
+        "InstanceNames": [
+          "Model",
+          "Font",
+          "Ortho",
+          "O"
+        ]
+      }
+    },
+    {
+      "Path": {
+        "InstanceTypes": [
+          "Model",
+          "Model",
+          "Model",
+          "MeshPart"
+        ],
+        "ItemType": "BasePart",
+        "InstanceNames": [
+          "Model",
+          "Font",
+          "Ortho",
+          "o"
+        ]
+      }
+    },
+    {
+      "Path": {
+        "InstanceTypes": [
+          "Model",
+          "Model",
+          "Model",
+          "MeshPart"
+        ],
+        "ItemType": "BasePart",
+        "InstanceNames": [
+          "Model",
+          "Font",
+          "Ortho",
+          "R"
+        ]
+      }
+    },
+    {
+      "Path": {
+        "InstanceTypes": [
+          "Model",
+          "Model",
+          "Model",
+          "MeshPart"
+        ],
+        "ItemType": "BasePart",
+        "InstanceNames": [
+          "Model",
+          "Font",
+          "Ortho",
+          "T"
+        ]
+      }
+    },
+    {
+      "Path": {
+        "InstanceTypes": [
+          "Model",
+          "Model"
+        ],
+        "ItemType": "Rig",
+        "InstanceNames": [
+          "Model",
+          "GroundLever"
+        ]
+      }
+    },
+    {
+      "Path": {
+        "InstanceTypes": [
+          "Model",
+          "Model"
+        ],
+        "ItemType": "Rig",
+        "InstanceNames": [
+          "Model",
+          "Bob"
+        ]
+      }
+    }
+  ]
+}
