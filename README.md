@@ -5,7 +5,7 @@ Ortho Games Framework is a framework designed by the Ortho Games studio to make 
 - fast
 - easy
 - intuitive
-- linearly complex.
+- linearly complex
 
 The main method we use to achieve that end is to use a hybrid ECS and event driven approach to make the development process scale, while still being intuitive for developers in the Roblox ecosystem.
 
@@ -33,7 +33,7 @@ Out of the box Stew does not support events in their system, but Roblox is so ev
 
 # User Interface
 
-In the time of writing this article modern UI design principles focus on this idea of reactive state that dynamically and smoothly transitions UI based on the change of that state. One of the current popular libraries that are built on this idea is Fusion. In our framework we use Fusion as a way to connect components, and events on the client side to easily build out complex ui systems with an intuitive reactive state. This allows developers to create complex ui systems with relative ease and hook up pre-made UI assets for easy team development.
+In the time of writing this article modern UI design principles focus on this idea of reactive state that dynamically and smoothly transitions UI based on the change of that state. One of the current popular libraries that are built on this idea is [Fusion](https://elttob.uk/Fusion/0.2/). In our framework we use Fusion as a way to connect components, and events on the client side to easily build out complex ui systems with an intuitive reactive state. This allows developers to create complex ui systems with relative ease and hook up pre-made UI assets for easy team development.
 
 # OrthoUtil
 
