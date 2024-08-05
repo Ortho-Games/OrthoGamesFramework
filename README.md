@@ -38,3 +38,11 @@ In the time of writing this article modern UI design principles focus on this id
 # OrthoUtil
 
 One of the strongest tools in the framework is the OrthoUtil that has a variety of random pure functions that can ease the strain of simple repeated simple or complex ideas that can get in the way of development fluidity. With the arsenal of functions in OrthoUtil it allows us to bring conceptualization to reality at a faster more efficient pace by solving common problems we don't have to think about.
+
+# The Beating Heart of Ortho Games Framework
+
+At the core of everything we have the Global folder inside of Shared. This folder gives quick access to World for Stew, Schedules from Sandwich, and InjectLifecycleSignals for Components.
+
+# We're Evolving
+
+Every project we take on and every new challenge we face we adapt our approach to improve the framework to fit our needs. The key to game development is understanding that one size does not fit all, all the time. Sometimes you will want to break the pattern in order to accommodate some specific feature you want that is vital to your game. This is why the Ortho Games framework is simple, and founded on basic widely applicable principles.
