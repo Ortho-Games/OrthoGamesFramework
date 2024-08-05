@@ -12,12 +12,12 @@
 --!strict
 local Moonlite = {}
 
-local EaseFuncs = require(script.EaseFuncs)
-local Specials = require(script.Specials)
 local Types = require(script.Types)
+local Specials = require(script.Specials)
+local EaseFuncs = require(script.EaseFuncs)
 
-local HttpService = game:GetService("HttpService")
 local RunService = game:GetService("RunService")
+local HttpService = game:GetService("HttpService")
 local TweenService = game:GetService("TweenService")
 
 if RunService:IsServer() then
@@ -85,7 +85,9 @@ local function toPath(path: MoonAnimPath): string
 end
 
 local function resolveAnimPath(path: MoonAnimPath?, root: Instance?): Instance?
-	if not path then return nil end
+	if not path then
+		return nil
+	end
 
 	local numSteps = #path.InstanceNames
 	local current: Instance = root or game
@@ -103,7 +105,9 @@ local function resolveAnimPath(path: MoonAnimPath?, root: Instance?): Instance?
 		end
 	end)
 
-	if success then return current end
+	if success then
+		return current
+	end
 
 	warn("!! PATH RESOLVE FAILED:", table.concat(path.InstanceNames, "."))
 	return nil
@@ -236,13 +240,7 @@ local function getPropValue(self: MoonTrack, inst: Instance?, prop: string): (bo
 	end)
 end
 
-local function setPropValue(
-	self: MoonTrack,
-	inst: Instance?,
-	prop: string,
-	value: any,
-	isDefault: boolean?
-): boolean
+local function setPropValue(self: MoonTrack, inst: Instance?, prop: string, value: any, isDefault: boolean?): boolean
 	if inst then
 		local binding = Specials.Get(self._scratch, inst, prop)
 
@@ -351,7 +349,9 @@ local function unpackKeyframes(container: Instance, modifier: ((any) -> any)?)
 			local value = current.Values[i]
 
 			if value ~= nil then
-				if modifier then value = modifier(value) end
+				if modifier then
+					value = modifier(value)
+				end
 
 				table.insert(sequence, {
 					Time = baseIndex + i,
@@ -359,7 +359,9 @@ local function unpackKeyframes(container: Instance, modifier: ((any) -> any)?)
 					Ease = ease,
 				})
 
-				if ease then lastEase = ease end
+				if ease then
+					lastEase = ease
+				end
 			end
 		end
 
@@ -372,7 +374,9 @@ end
 local function compileItem(self: MoonTrack, item: MoonAnimItem)
 	local id = table.find(self._data.Items, item)
 
-	if not id then return end
+	if not id then
+		return
+	end
 
 	local path = item.Path
 	local itemType = path.ItemType
@@ -381,7 +385,9 @@ local function compileItem(self: MoonTrack, item: MoonAnimItem)
 	local frame = self._save:FindFirstChild(tostring(id))
 	local rig = frame and frame:FindFirstChild("Rig")
 
-	if not (target and frame) then return end
+	if not (target and frame) then
+		return
+	end
 
 	assert(target)
 	assert(frame)
@@ -390,13 +396,17 @@ local function compileItem(self: MoonTrack, item: MoonAnimItem)
 		local joints = resolveJoints(target)
 
 		for i, jointData in rig:GetChildren() do
-			if jointData.Name ~= "_joint" then continue end
+			if jointData.Name ~= "_joint" then
+				continue
+			end
 
 			local hier = jointData:FindFirstChild("_hier")
 			local default: any = jointData:FindFirstChild("default")
 			local keyframes = jointData:FindFirstChild("_keyframes")
 
-			if default then default = readValue(default) end
+			if default then
+				default = readValue(default)
+			end
 
 			if hier and keyframes then
 				local tree = readValue(hier)
@@ -414,9 +424,7 @@ local function compileItem(self: MoonTrack, item: MoonAnimItem)
 					elseif children[name] then
 						data = children[name]
 					else
-						warn(
-							`failed to resolve joint '{tree}' (could not find child '{name}' in {data.Name}!)`
-						)
+						warn(`failed to resolve joint '{tree}' (could not find child '{name}' in {data.Name}!)`)
 						data = nil
 					end
 				end
@@ -451,7 +459,9 @@ local function compileItem(self: MoonTrack, item: MoonAnimItem)
 		for i, prop in frame:GetChildren() do
 			local default: any = prop:FindFirstChild("default")
 
-			if default then default = readValue(default) end
+			if default then
+				default = readValue(default)
+			end
 
 			props[prop.Name] = {
 				Default = default,
@@ -485,13 +495,17 @@ local function compileRouting(self: MoonTrack)
 end
 
 local function getElements(self: MoonTrack)
-	if not self._compiled then compileRouting(self) end
+	if not self._compiled then
+		compileRouting(self)
+	end
 
 	return self._elements
 end
 
 local function getTargets(self: MoonTrack)
-	if not self._compiled then compileRouting(self) end
+	if not self._compiled then
+		compileRouting(self)
+	end
 
 	return self._targets
 end
@@ -570,7 +584,9 @@ function MoonTrack.IsElementLocked(self: MoonTrack, inst: Instance?): boolean
 	local targets = getTargets(self)
 	local element = inst and targets[inst]
 
-	if element and next(element.Locks) then return true end
+	if element and next(element.Locks) then
+		return true
+	end
 
 	return false
 end
@@ -586,7 +602,9 @@ function MoonTrack.ReplaceElementByPath(self: MoonTrack, targetPath: string, rep
 			if itemType == "Rig" or replacement:IsA(path.ItemType) then
 				item.Override = replacement
 
-				if self._compiled then compileItem(self, item) end
+				if self._compiled then
+					compileItem(self, item)
+				end
 
 				return true
 			end
@@ -600,7 +618,9 @@ function MoonTrack.FindElement(self: MoonTrack, name: string): Instance?
 	for i, element in getElements(self) do
 		local target = element.Target
 
-		if target and target.Name == name then return target end
+		if target and target.Name == name then
+			return target
+		end
 	end
 
 	return nil
@@ -610,7 +630,9 @@ function MoonTrack.FindElementOfType(self: MoonTrack, typeName: string): Instanc
 	for i, element in getElements(self) do
 		local target = element.Target
 
-		if target and target:IsA(typeName) then return target end
+		if target and target:IsA(typeName) then
+			return target
+		end
 	end
 
 	return nil
@@ -630,7 +652,9 @@ function MoonTrack.Stop(self: MoonTrack)
 end
 
 function MoonTrack.Reset(self: MoonTrack)
-	if self:IsPlaying() then return false end
+	if self:IsPlaying() then
+		return false
+	end
 
 	for inst, element in self._targets do
 		for name, data in element.Props do
@@ -642,7 +666,9 @@ function MoonTrack.Reset(self: MoonTrack)
 end
 
 function MoonTrack.Play(self: MoonTrack)
-	if self:IsPlaying() then return end
+	if self:IsPlaying() then
+		return
+	end
 
 	for target, element in getTargets(self) do
 		if next(element.Locks) then
@@ -651,7 +677,9 @@ function MoonTrack.Play(self: MoonTrack)
 		end
 
 		for propName, prop in element.Props do
-			if not setPropValue(self, target, propName, prop.Default, true) then continue end
+			if not setPropValue(self, target, propName, prop.Default, true) then
+				continue
+			end
 
 			local lastEase: MoonEaseInfo?
 			local lastTween: Tween?
@@ -741,7 +769,9 @@ function MoonTrack.Play(self: MoonTrack)
 					if gotStart then
 						start = setStart
 
-						if setup then task.spawn(setup) end
+						if setup then
+							task.spawn(setup)
+						end
 
 						interp.Changed:Connect(stepInterp)
 						task.spawn(stepInterp, 0)
@@ -751,14 +781,18 @@ function MoonTrack.Play(self: MoonTrack)
 						-- TODO: Switch to a proper timeline system instead of using tween chains.
 
 						tween.Completed:Connect(function(state)
-							if state == Enum.PlaybackState.Completed then interp.Value = 1 end
+							if state == Enum.PlaybackState.Completed then
+								interp.Value = 1
+							end
 						end)
 					end
 				end
 
 				if lastTween then
 					lastTween.Completed:Connect(function(state)
-						if state == Enum.PlaybackState.Completed then dispatch() end
+						if state == Enum.PlaybackState.Completed then
+							dispatch()
+						end
 					end)
 				else
 					task.spawn(dispatch)
@@ -773,14 +807,18 @@ function MoonTrack.Play(self: MoonTrack)
 				self._playing[prop] = true
 
 				lastTween.Completed:Connect(function(state)
-					if state ~= Enum.PlaybackState.Completed then return end
+					if state ~= Enum.PlaybackState.Completed then
+						return
+					end
 
 					self._playing[prop] = nil
 
 					if not next(self._playing) then
 						self._completed:Fire()
 
-						if self.Looped then task.spawn(self.Play, self) end
+						if self.Looped then
+							task.spawn(self.Play, self)
+						end
 					end
 				end)
 			end
