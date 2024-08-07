@@ -1,7 +1,7 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Sandwich = require(ReplicatedStorage.Packages.Sandwich)
 
-local Util = require(script.Parent.Util)
+local Util = require(ReplicatedStorage.Packages.OrthoUtil)
 
 export type Schedule = typeof(Sandwich.schedule())
 export type Schedules = { [any]: Schedule }
@@ -46,12 +46,9 @@ local function CreateScheduleProxy(scheduleName)
 		for job, jobs in schedule.graph do
 			if not jobToPathName[job] then continue end
 
-			graph[jobToPathName[job]] = Util.filter_map(
-				jobs,
-				function(_, childJob)
-					return jobToPathName[childJob] or childJob
-				end
-			)
+			graph[jobToPathName[job]] = Util.filter_map(jobs, function(_, childJob)
+				return jobToPathName[childJob] or childJob
+			end)
 		end
 
 		return graph

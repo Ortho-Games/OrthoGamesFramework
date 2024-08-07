@@ -1,6 +1,6 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
-local Utils = require(script.Parent.Util)
+local Utils = require(ReplicatedStorage.Packages.OrthoUtil)
 local modes = Utils.arrayToDict { "NONE", "VERBOSE", "DEBUG" }
 local contexts = Utils.arrayToDict { "BOTH", "CLIENT", "SERVER" }
 

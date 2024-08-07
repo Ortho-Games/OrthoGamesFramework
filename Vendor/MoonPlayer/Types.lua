@@ -21,7 +21,6 @@ export type MoonAnimPath = {
 }
 
 export type MoonAnimItem = {
-	Override: Instance?,
 	Path: MoonAnimPath,
 }
 
@@ -58,7 +57,7 @@ export type MoonProperty = {
 	Sequence: { MoonKeyframe },
 }
 
-export type MoonElement = {
+export type MoonItem = {
 	Target: Instance?,
 
 	Locks: {
@@ -68,6 +67,8 @@ export type MoonElement = {
 	Props: {
 		[string]: MoonProperty,
 	},
+
+	Path: MoonAnimPath,
 }
 
 export type MoonJointInfo = {
@@ -85,7 +86,7 @@ export type MoonAnimInfo = {
 	ExportedPriority: string,
 	Modified: number,
 	Length: number,
-	FPS: number?,
+	FPS: number,
 	Looped: boolean,
 }
 

@@ -6,4 +6,5 @@ return {
 	Schedules = require(script.Schedules),
 	DEBUG = require(script.DebugUtil),
 	InjectLifecycleSignals = require(script.InjectLifecycleSignals),
+	Util = require(ReplicatedStorage.Packages.OrthoUtil),
 }
