@@ -2,7 +2,7 @@ local ContentProvider = game:GetService("ContentProvider")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Global = require(ReplicatedStorage.Shared.Global)
 local Janitor = require(ReplicatedStorage.Packages.Janitor)
-local Moonlite = require(ReplicatedStorage.Packages.Moonlite)
+local MoonPlayer = require(ReplicatedStorage.Vendor.MoonPlayer)
 local Promise = require(ReplicatedStorage.Packages.Promise)
 
 local CreditSequenceAnimation = Global.Assets.MoonAnimations.CreditSequence.Animation
@@ -30,15 +30,13 @@ function CreditSequences.startPromise(preloadedAssets)
 	local sequenceModel = janitor:Add(CreditSequenceModel:Clone(), "Destroy")
 	sequenceModel.Parent = workspace
 
-	local moonTrack = Moonlite.CreatePlayer(CreditSequenceAnimation, sequenceModel)
-	moonTrack:ReplaceElementByPath("game.Workspace.CurrentCamera", workspace.CurrentCamera)
+	local moonTrack = MoonPlayer.new(CreditSequenceAnimation, sequenceModel)
+	moonTrack:ReplaceItemByPath("game.Workspace.CurrentCamera", workspace.CurrentCamera)
 
 	janitor:Add(function()
 		moonTrack:Stop()
 		moonTrack:Reset()
 	end, true)
-
-	task.wait()
 
 	moonTrack:Play()
 

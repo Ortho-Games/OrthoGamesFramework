@@ -37,7 +37,7 @@ export type MoonTrack = typeof(setmetatable(
 		Completed: Signal,
 		Looped: boolean,
 		_janitor: Janitor,
-		_items: { [string]: MoonItem },
+		_items: { MoonItem },
 		_targets: { [Instance]: MoonItem },
 		_save: StringValue,
 		_data: MoonAnimSave,
@@ -78,6 +78,47 @@ local function readValue(value: Instance)
 	else
 		return value:GetAttribute("Value")
 	end
+end
+
+local function setPropValue(
+	scratch: Scratchpad,
+	inst: Instance?,
+	propName: string,
+	value: any,
+	isDefault: boolean?
+): boolean
+	if inst then
+		local binding = Specials.Get(scratch, inst, propName)
+
+		if binding then
+			if binding.Get == nil and isDefault and value == true then
+				-- Ugh, This is an action(?), but for some reason six
+				-- sets the default value to true here, which
+				-- would behave as an immediate dispatch.
+				-- Not the behavior we need.
+				warn("idk what this is, but if anyone sees this let @RoboGojo know")
+				value = false
+			end
+
+			return pcall(binding.Set, value)
+		end
+	end
+
+	return pcall(function()
+		(inst :: any)[propName] = value
+	end)
+end
+
+local function lerp<T>(a: T, b: T, t: number): any
+	if type(a) == "number" then
+		return a + ((b - a) * t)
+	else
+		return (a :: any):Lerp(b, t)
+	end
+end
+
+local function toPath(path: MoonAnimPath): string
+	return table.concat(path.InstanceNames, ".")
 end
 
 local function parseEase(easeInst: Instance): MoonEaseInfo
@@ -201,53 +242,48 @@ local function unpackKeyframes(container: Folder, modifier: ((any) -> any)?, def
 			if current.Values[i] == nil then continue end
 			if ease then lastEase = ease end
 
-			local start = current.Prev or default
-			local goal
+			local prev = sequence[#sequence]
+			local start = if prev then prev.Value else default
 			local value = if modifier then modifier(current.Values[i]) else current.Values[i]
-			if typeof(value) == "ColorSequence" then
-				setup = function()
-					start = start.Keypoints[1].Value
-					goal = value.Keypoints[1].Value
-				end
+			local goal = value
 
+			local handler: (number) -> any
+			if typeof(goal) == "ColorSequence" then
+				start = start.Keypoints[1].Value
+				goal = goal.Keypoints[1].Value
 				handler = function(t: number)
-					local value = lerp(start, goal, t)
-					return ColorSequence.new(value)
+					return ColorSequence.new(lerp(start, goal, t))
 				end
-			elseif typeof(value) == "NumberSequence" then
-				setup = function()
-					start = start.Keypoints[1].Value
-					goal = goal.Keypoints[1].Value
-				end
-
+			elseif typeof(goal) == "NumberSequence" then
+				start = start.Keypoints[1].Value
+				goal = goal.Keypoints[1].Value
 				handler = function(t: number)
-					local value = lerp(start, goal, t)
-					return NumberSequence.new(value)
+					return NumberSequence.new(lerp(start, goal, t))
 				end
-			elseif typeof(value) == "NumberRange" then
-				setup = function()
-					start = start.Min
-					goal = value.Min
-				end
-
+			elseif typeof(goal) == "NumberRange" then
+				start = start.Min
+				goal = goal.Min
 				handler = function(t: number)
-					local value = lerp(start, goal, t)
-					return NumberRange.new(value)
+					return NumberRange.new(lerp(start, goal, t))
 				end
-			elseif CONSTANT_INTERPS[typeof(value)] then
+			elseif CONSTANT_INTERPS[typeof(goal)] then
 				handler = function(t: number)
-					if t >= 1 then
-						return value
-					else
-						return start
-					end
+					return if t >= 1 then goal else start
+				end
+			else
+				handler = function(t: number)
+					return lerp(start, goal, t)
 				end
 			end
 
+			local currentTime = baseIndex + i
+			local lastTime = sequence[#sequence] and sequence[#sequence].Time
 			table.insert(sequence, {
-				Time = baseIndex + i,
-				Value = if modifier then modifier(value) else value,
+				Time = currentTime,
+				Duration = if lastTime then currentTime - lastTime else currentTime,
+				Value = value,
 				Ease = EaseFuncs.Get(ease),
+				Handler = handler,
 			})
 		end
 
@@ -282,7 +318,7 @@ local function resolveAnimPath(path: MoonAnimPath?, root: Instance?): Instance?
 	return nil
 end
 
-local function MakeItem(moonItem: MoonAnimItem, itemData: Folder, root: Instance?): MoonItem
+local function MakeItem(moonItem: MoonAnimItem, itemSave: Instance, root: Instance?): MoonItem
 	local target = resolveAnimPath(moonItem.Path, root)
 
 	local item: MoonItem
@@ -290,12 +326,16 @@ local function MakeItem(moonItem: MoonAnimItem, itemData: Folder, root: Instance
 		-- @TODO: handle rigs differently
 	else
 		local props = {}
-		for i, prop in itemData:GetChildren() do
+		for i, prop in itemSave:GetChildren() do
 			local default: any = prop:FindFirstChild("default")
 			props[prop.Name] = {
 				Default = default and readValue(default),
 				Sequence = unpackKeyframes(prop),
 			}
+
+			if moonItem.Path.ItemType == "Camera" and prop.Name == "CFrame" then
+				print(props[prop.Name].Sequence)
+			end
 		end
 
 		item = {
@@ -309,25 +349,22 @@ local function MakeItem(moonItem: MoonAnimItem, itemData: Folder, root: Instance
 	return item
 end
 
-local function UpdateItem(track: MoonTrack, item: MoonItem)
-	if not item.Target then return end
-
-	for propName, prop in item.Props do
-	end
-end
-
 function MoonTrack.new(save: StringValue, root: Instance?): MoonTrack
 	local data: MoonAnimSave = HttpService:JSONDecode(save.Value)
 	local janitor = Janitor.new()
-	janitor:Add(Janitor.new(), "Destroy", "PlayingJanitor")
 
 	data.Information.FPS = data.Information.FPS or 60
 
-	local items: { [string]: MoonItem }, targets: { [Instance]: MoonItem } = {}, {}
+	local items: { MoonItem }, targets: { [Instance]: MoonItem } = {}, {}
 	for i, moonItem in data.Items do
-		local id = HttpService:JSONEncode(moonItem.Path)
-		local item = MakeItem(moonItem, data[i], root)
-		items[id] = item
+		local itemSave = assert(save:FindFirstChild(i))
+		local item = MakeItem(moonItem, itemSave, root)
+		if not item then
+			warn("FIX THIS, HANDLE RIGS DIFFERENTLY")
+			continue
+		end
+
+		table.insert(items, item)
 
 		if item.Target then targets[item.Target] = item end
 	end
@@ -338,6 +375,7 @@ function MoonTrack.new(save: StringValue, root: Instance?): MoonTrack
 		Completed = completed,
 		Looped = data.Information.Looped,
 		_janitor = janitor,
+		_playingJanitor = janitor:Add(Janitor.new(), "Destroy"),
 		_items = items,
 		_save = save,
 		_data = data,
@@ -353,59 +391,68 @@ function MoonTrack.Destroy(self: MoonTrack)
 end
 
 function MoonTrack.Play(self: MoonTrack)
-	local _playingJanitor = self.Janitor:Get("PlayingJanitor")
-	_playingJanitor:Cleanup()
+	self:Reset()
 
-	_playingJanitor:Add(
-		RunService.RenderStepped:Connect(function(dt)
-			self._time += dt
-
-			local frame = self._time * self._data.Information.FPS // 1
-			if frame > self._data.Information.Length then
-				if self._data.Information.Looped then
-					frame %= self._data.Information.Length
-					self._time %= self._data.Information.Length / self._data.Information.FPS
-				else
-					self:Stop()
-				end
+	local startTime = os.clock()
+	local conn = RunService.RenderStepped:Connect(function(dt)
+		local frameTime = (os.clock() - startTime) * self._data.Information.FPS
+		local frame = frameTime // 1
+		if frame > self._data.Information.Length then
+			self.Completed:Fire()
+			if not self._data.Information.Looped then
+				self:Stop()
+				return
 			end
+			frame %= self._data.Information.Length
+			frameTime %= self._data.Information.Length
+		end
 
-			for _, item in self._items do
-				if next(item.Locks) then continue end
+		for _, item in self._items do
+			if next(item.Locks) then continue end
 
-				for propName, prop in item.Props do
-					local currentFrame = prop.Sequence[prop._currentFrame]
-					local nextFrame = prop.Sequence[prop._currentFrame + 1]
+			for propName, prop in item.Props do
+				if not prop._nextFrame then continue end
 
-					if currentFrame.Time == frame then
-						local t = currentFrame.Ease(self._time - currentFrame.Time)
-						local value = if not handler then lerp(start, goal, t) else handler(t)
+				local kf = prop.Sequence[prop._nextFrame]
+				if kf and kf.Time <= frame then
+					repeat
+						prop._nextFrame += 1
+						kf = prop.Sequence[prop._nextFrame]
+					until not (kf and kf.Time <= frame)
+				end
+
+				if kf then
+					local t = math.clamp((frameTime - kf.Time + kf.Duration) / kf.Duration, 0, 1)
+					local te = kf.Ease(t)
+					local v = kf.Handler(te)
+
+					setPropValue(self._scratch, item.Target, propName, v)
+					if item.Path.ItemType == "Camera" and propName == "CFrame" then
+						print(kf.Time, frameTime, t)
 					end
 				end
 			end
-		end),
-		"Disconnect"
-	)
+		end
+	end)
+
+	self._playingJanitor:Add(conn, "Disconnect")
 end
 
 function MoonTrack.Stop(self: MoonTrack)
-	self.Janitor:Get("PlayingJanitor"):Cleanup()
+	self._playingJanitor:Cleanup()
 end
 
 function MoonTrack.Reset(self: MoonTrack)
-	if self:IsPlaying() then return false end
 	self:Stop()
-	self._time = 0
 
 	for _, item in self._items do
 		if not item.Target then continue end
 
 		for propName: string, prop in item.Props do
-			setPropValue(self, item.Target, propName, prop.Default, true)
+			setPropValue(self._scratch, item.Target, propName, prop.Default, true)
+			prop._nextFrame = prop.Sequence[1] and (prop.Sequence[1].Time + 1)
 		end
 	end
-
-	return true
 end
 
 function MoonTrack.LockElement(self: MoonTrack, target: Instance?, lock: any?)
@@ -428,21 +475,19 @@ function MoonTrack.UnlockElement(self: MoonTrack, target: Instance?, lock: any?)
 	return false
 end
 
-function MoonTrack.ReplaceItemByPath(
-	self: MoonTrack,
-	targetPath: MoonAnimPath,
-	replacement: Instance
-): boolean
-	local id = HttpService:JSONEncode(targetPath)
-	local item: MoonItem = self._items[id]
+function MoonTrack.ReplaceItemByPath(self: MoonTrack, targetPath: string, replacement: Instance)
+	for _, item in self._items do
+		if toPath(item.Path):lower() == targetPath:lower() then
+			local itemType = item.Path.ItemType
 
-	if not item then
-		return false
-	elseif item.Path.ItemType == "Rig" then
-	elseif replacement:IsA(item.Path.ItemType) then
-		item.Target = replacement
-		self._targets[replacement] = item
-		return true
+			if itemType == "Rig" then
+				return false
+			elseif replacement:IsA(item.Path.ItemType) then
+				item.Target = replacement
+				self._targets[replacement] = item
+				return true
+			end
+		end
 	end
 
 	return false

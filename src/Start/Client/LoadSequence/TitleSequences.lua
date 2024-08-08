@@ -22,8 +22,6 @@ function TitleSequences.preloadPromise()
 end
 
 function TitleSequences.startPromise()
-	print(debug.traceback())
-
 	return Promise.try(function()
 		-- transition to title screen
 		print("starting title")
