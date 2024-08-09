@@ -1,10 +1,8 @@
 local HttpService = game:GetService("HttpService")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
-local TweenService = game:GetService("TweenService")
 
-local Janitor = require(ReplicatedStorage.Packages.Janitor)
-local Signal = require(ReplicatedStorage.Packages.Signal)
+local Janitor = require(script.Packages.Janitor)
+local Signal = require(script.Packages.Signal)
 
 local EaseFuncs = require(script.EaseFuncs)
 local Specials = require(script.Specials)
@@ -13,6 +11,16 @@ local Types = require(script.Types)
 if RunService:IsServer() then
 	warn("Moonlite should NOT be used on the server! Rig transforms will not be replicated.")
 end
+
+local animationsMemo = setmetatable({}, {
+	__index = function(t, k)
+		local v = Instance.new("Animation")
+		v.AnimationId = k
+		print(v.AnimationId)
+		rawset(t, k, v)
+		return v
+	end,
+})
 
 type Signal = typeof(Signal.new())
 type Janitor = typeof(Janitor.new())
@@ -233,61 +241,73 @@ local function unpackKeyframes(container: Folder, modifier: ((any) -> any)?, def
 		curr.Prev = prev
 	end
 
-	local sequence = {}
+	local keyframes = {}
 	local current: MoonKeyframePack? = packs[indices[1]]
 	while current do
 		local baseIndex, lastEase = current.FrameIndex, nil
 		for i = 0, current.FrameCount do
+			local value = current.Values[i]
+			if value == nil then continue end
 			local ease = current.Eases[i] or lastEase
-			if current.Values[i] == nil then continue end
 			if ease then lastEase = ease end
 
-			local prev = sequence[#sequence]
-			local start = if prev then prev.Value else default
-			local value = if modifier then modifier(current.Values[i]) else current.Values[i]
-			local goal = value
-
-			local handler: (number) -> any
-			if typeof(goal) == "ColorSequence" then
-				start = start.Keypoints[1].Value
-				goal = goal.Keypoints[1].Value
-				handler = function(t: number)
-					return ColorSequence.new(lerp(start, goal, t))
-				end
-			elseif typeof(goal) == "NumberSequence" then
-				start = start.Keypoints[1].Value
-				goal = goal.Keypoints[1].Value
-				handler = function(t: number)
-					return NumberSequence.new(lerp(start, goal, t))
-				end
-			elseif typeof(goal) == "NumberRange" then
-				start = start.Min
-				goal = goal.Min
-				handler = function(t: number)
-					return NumberRange.new(lerp(start, goal, t))
-				end
-			elseif CONSTANT_INTERPS[typeof(goal)] then
-				handler = function(t: number)
-					return if t >= 1 then goal else start
-				end
-			else
-				handler = function(t: number)
-					return lerp(start, goal, t)
-				end
-			end
-
 			local currentTime = baseIndex + i
-			local lastTime = sequence[#sequence] and sequence[#sequence].Time
-			table.insert(sequence, {
+			table.insert(keyframes, {
 				Time = currentTime,
-				Duration = if lastTime then currentTime - lastTime else currentTime,
-				Value = value,
-				Ease = EaseFuncs.Get(ease),
-				Handler = handler,
+				Value = if modifier then modifier(value) else value,
+				Ease = ease,
 			})
 		end
 
 		current = current.Next
+	end
+
+	local sequence = {}
+	for i = 1, #keyframes - 1 do
+		local kf = keyframes[i]
+		local nextKf = keyframes[i + 1]
+
+		local start = kf.Value
+		local goal = nextKf.Value
+
+		local handler: (number) -> any
+		if typeof(goal) == "ColorSequence" then
+			start = start.Keypoints[1].Value
+			goal = goal.Keypoints[1].Value
+			handler = function(t: number)
+				return ColorSequence.new(lerp(start, goal, t))
+			end
+		elseif typeof(goal) == "NumberSequence" then
+			start = start.Keypoints[1].Value
+			goal = goal.Keypoints[1].Value
+			handler = function(t: number)
+				return NumberSequence.new(lerp(start, goal, t))
+			end
+		elseif typeof(goal) == "NumberRange" then
+			start = start.Min
+			goal = goal.Min
+			handler = function(t: number)
+				return NumberRange.new(lerp(start, goal, t))
+			end
+		elseif CONSTANT_INTERPS[typeof(goal)] then
+			handler = function(t: number)
+				return if t >= 1 then goal else start
+			end
+		else
+			handler = function(t: number)
+				return lerp(start, goal, t)
+			end
+		end
+
+		local ease = EaseFuncs.Get(kf.Ease)
+		table.insert(sequence, {
+			Time = kf.Time,
+			Duration = nextKf.Time - kf.Time,
+			Handler = function(t)
+				return handler(ease(t))
+			end,
+			Value = nextKf.Value,
+		})
 	end
 
 	return sequence
@@ -310,12 +330,11 @@ local function resolveAnimPath(path: MoonAnimPath?, root: Instance?): Instance?
 
 			current = nextInst
 		end
+
+		if path.ItemType == "Rig" then assert(current:FindFirstChildWhichIsA("Animator", true)) end
 	end)
 
-	if success then return current end
-
-	warn("!! PATH RESOLVE FAILED:", table.concat(path.InstanceNames, "."))
-	return nil
+	return if success then current else nil
 end
 
 local function MakeItem(moonItem: MoonAnimItem, itemSave: Instance, root: Instance?): MoonItem
@@ -323,19 +342,23 @@ local function MakeItem(moonItem: MoonAnimItem, itemSave: Instance, root: Instan
 
 	local item: MoonItem
 	if moonItem.Path.ItemType == "Rig" then
-		-- @TODO: handle rigs differently
+		print(moonItem)
+
+		item = {
+			Locks = {},
+			Props = {},
+			Animation = animationsMemo[moonItem.ID or ""],
+			Target = target,
+			Path = moonItem.Path,
+		}
 	else
 		local props = {}
-		for i, prop in itemSave:GetChildren() do
+		for _, prop in itemSave:GetChildren() do
 			local default: any = prop:FindFirstChild("default")
 			props[prop.Name] = {
 				Default = default and readValue(default),
 				Sequence = unpackKeyframes(prop),
 			}
-
-			if moonItem.Path.ItemType == "Camera" and prop.Name == "CFrame" then
-				print(props[prop.Name].Sequence)
-			end
 		end
 
 		item = {
@@ -355,38 +378,43 @@ function MoonTrack.new(save: StringValue, root: Instance?): MoonTrack
 
 	data.Information.FPS = data.Information.FPS or 60
 
-	local items: { MoonItem }, targets: { [Instance]: MoonItem } = {}, {}
-	for i, moonItem in data.Items do
-		local itemSave = assert(save:FindFirstChild(i))
-		local item = MakeItem(moonItem, itemSave, root)
-		if not item then
-			warn("FIX THIS, HANDLE RIGS DIFFERENTLY")
-			continue
-		end
-
-		table.insert(items, item)
-
-		if item.Target then targets[item.Target] = item end
-	end
-
-	local completed = janitor:Add(Signal.new(), "Destroy")
-
-	return setmetatable({
-		Completed = completed,
+	local self = setmetatable({
+		Completed = janitor:Add(Signal.new(), "Destroy"),
 		Looped = data.Information.Looped,
+		Playing = false,
 		_janitor = janitor,
 		_playingJanitor = janitor:Add(Janitor.new(), "Destroy"),
-		_items = items,
+		_items = {},
 		_save = save,
 		_data = data,
 		_time = 0,
 		_scratch = {},
-		_targets = targets,
+		_targets = {},
 	}, MoonTrack)
+
+	for i, moonItem in data.Items do
+		local itemSave = assert(save:FindFirstChild(i))
+		local item = MakeItem(moonItem, itemSave, root)
+		table.insert(self._items, item)
+		if item.Target then
+			if item.Path.ItemType == "Rig" then
+				local target = item.Target
+					:FindFirstChildWhichIsA("Animator", true)
+					:LoadAnimation(item.Animation)
+				self._targets[item.Target] = item
+				item.Target = target
+			else
+				self._targets[item.Target] = item
+			end
+		end
+	end
+
+	return self
 end
 
 function MoonTrack.Destroy(self: MoonTrack)
 	if not self._janitor.Destroy then return end
+	self:Reset()
 	self._janitor:Destroy()
 end
 
@@ -394,63 +422,87 @@ function MoonTrack.Play(self: MoonTrack)
 	self:Reset()
 
 	local startTime = os.clock()
-	local conn = RunService.RenderStepped:Connect(function(dt)
-		local frameTime = (os.clock() - startTime) * self._data.Information.FPS
+	local conn = RunService.RenderStepped:Connect(function()
+		local t = os.clock() - startTime
+		local frameTime = t * self._data.Information.FPS
 		local frame = frameTime // 1
-		if frame > self._data.Information.Length then
-			self.Completed:Fire()
-			if not self._data.Information.Looped then
-				self:Stop()
-				return
-			end
+
+		local completed = frame > self._data.Information.Length
+		if completed and self._data.Information.Looped then
 			frame %= self._data.Information.Length
 			frameTime %= self._data.Information.Length
+			self:Reset()
 		end
 
 		for _, item in self._items do
 			if next(item.Locks) then continue end
 
-			for propName, prop in item.Props do
-				if not prop._nextFrame then continue end
+			if item.Path.ItemType == "Rig" then
+				if not item.Target then continue end
+				local target: AnimationTrack = item.Target
+				if not target.IsPlaying then
+					target:Play()
+					target:AdjustSpeed(0)
+					self._playingJanitor:Add(target, "Stop")
+				end
+				target.TimePosition = t
+				continue
+			end
 
-				local kf = prop.Sequence[prop._nextFrame]
-				if kf and kf.Time <= frame then
-					repeat
-						prop._nextFrame += 1
-						kf = prop.Sequence[prop._nextFrame]
-					until not (kf and kf.Time <= frame)
+			for propName, prop in item.Props do
+				if not prop._currentFrame then continue end
+				local kf = prop.Sequence[prop._currentFrame]
+
+				while kf and frame >= kf.Time + kf.Duration do
+					prop._currentFrame += 1
+					kf = prop.Sequence[prop._currentFrame]
 				end
 
 				if kf then
-					local t = math.clamp((frameTime - kf.Time + kf.Duration) / kf.Duration, 0, 1)
-					local te = kf.Ease(t)
-					local v = kf.Handler(te)
-
+					local t = math.clamp((frameTime - kf.Time) / kf.Duration, 0, 1)
+					local v = kf.Handler(t)
 					setPropValue(self._scratch, item.Target, propName, v)
-					if item.Path.ItemType == "Camera" and propName == "CFrame" then
-						print(kf.Time, frameTime, t)
-					end
+				else
+					setPropValue(
+						self._scratch,
+						item.Target,
+						propName,
+						prop.Sequence[prop._currentFrame - 1].Value
+					)
+					prop._currentFrame = nil
 				end
 			end
 		end
-	end)
 
+		if completed and self._data.Information.Looped then
+			if not self._data.Information.Looped then self:Stop() end
+			self.Completed:Fire()
+		end
+	end)
 	self._playingJanitor:Add(conn, "Disconnect")
+
+	self.Playing = true
+	self._playingJanitor:Add(function()
+		self.Playing = false
+	end, true)
 end
 
 function MoonTrack.Stop(self: MoonTrack)
+	if not self._playingJanitor.Cleanup then return end
 	self._playingJanitor:Cleanup()
 end
 
 function MoonTrack.Reset(self: MoonTrack)
-	self:Stop()
-
 	for _, item in self._items do
 		if not item.Target then continue end
 
-		for propName: string, prop in item.Props do
-			setPropValue(self._scratch, item.Target, propName, prop.Default, true)
-			prop._nextFrame = prop.Sequence[1] and (prop.Sequence[1].Time + 1)
+		if item.Path.ItemType == "Rig" then
+			item.Target.TimePosition = 0
+		else
+			for propName: string, prop in item.Props do
+				setPropValue(self._scratch, item.Target, propName, prop.Default, true)
+				prop._currentFrame = if prop.Sequence[1] then 1 else nil
+			end
 		end
 	end
 end
@@ -459,6 +511,11 @@ function MoonTrack.LockElement(self: MoonTrack, target: Instance?, lock: any?)
 	local item = target and self._targets[target]
 	if item then
 		item.Locks[lock or "Default"] = true
+		if item.Path.ItemType == "Rig" then
+			local current = self._targets[target].Target
+			current:Stop()
+		end
+
 		return true
 	end
 
@@ -469,6 +526,13 @@ function MoonTrack.UnlockElement(self: MoonTrack, target: Instance?, lock: any?)
 	local item = target and self._targets[target]
 	if item then
 		item.Locks[lock or "Default"] = nil
+		if item.Path.ItemType == "Rig" and self.Playing then
+			local current = self._targets[target].Target
+			current:Play()
+			current.Speed = 0
+			current.TimePosition = 0
+		end
+
 		return true
 	end
 
@@ -477,20 +541,37 @@ end
 
 function MoonTrack.ReplaceItemByPath(self: MoonTrack, targetPath: string, replacement: Instance)
 	for _, item in self._items do
-		if toPath(item.Path):lower() == targetPath:lower() then
-			local itemType = item.Path.ItemType
+		if toPath(item.Path):lower() ~= targetPath:lower() then continue end
+		local itemType = item.Path.ItemType
 
-			if itemType == "Rig" then
-				return false
-			elseif replacement:IsA(item.Path.ItemType) then
-				item.Target = replacement
+		if itemType == "Rig" then
+			local target = replacement:FindFirstChildWhichIsA("Animator", true)
+			if target then
+				target = target:LoadAnimation(item.Animation)
+				item.Target = target
 				self._targets[replacement] = item
 				return true
 			end
 		end
+
+		if replacement:IsA(itemType) then
+			item.Target = replacement
+			self._targets[replacement] = item
+			return true
+		end
 	end
 
+	warn("!! PATH REPLACE FAILED:", targetPath)
+
 	return false
+end
+
+function MoonTrack.GetSetting<T>(self: MoonTrack, name: string): T
+	return self._scratch[name]
+end
+
+function MoonTrack.SetSetting<T>(self: MoonTrack, name: string, value: T)
+	self._scratch[name] = value
 end
 
 return MoonTrack

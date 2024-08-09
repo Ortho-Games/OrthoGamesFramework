@@ -1,5 +1,4 @@
 local Janitor = require(script.Packages.Janitor)
-local Signal = require(script.Packages.Signal)
 
 local Players = game:GetService("Players")
 local ReplicatedFirst = game:GetService("ReplicatedFirst")
@@ -22,7 +21,6 @@ local progressTi = TweenInfo.new(0.25, Enum.EasingStyle.Quad)
 local fadeTi = TweenInfo.new(1)
 
 local LoadScreen = {}
-LoadScreen.onSkipped = Signal.new()
 
 local _janitor = Janitor.new()
 

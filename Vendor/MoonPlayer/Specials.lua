@@ -64,9 +64,7 @@ local function LazyAction<T>(handler: (T) -> ()): Binding<T, boolean>
 			Default = false,
 
 			Set = function(value: boolean)
-				if value then
-					handler(inst)
-				end
+				if value then handler(inst) end
 			end,
 		}
 	end
@@ -87,9 +85,7 @@ local function setCameraActive(work: Scratchpad, camera: Camera, active: boolean
 			if attachTo then
 				local cf = attachTo.CFrame
 
-				if lookAt then
-					cf = CFrame.new(cf.Position, lookAt.Position)
-				end
+				if lookAt then cf = CFrame.new(cf.Position, lookAt.Position) end
 
 				camera.CFrame = cf
 			end
@@ -99,22 +95,17 @@ local function setCameraActive(work: Scratchpad, camera: Camera, active: boolean
 		work._cameraRenderBound = true
 		updateCamera()
 
-		if not work.KeepCameraType then
-			camera.CameraType = Enum.CameraType.Scriptable
-		end
+		if not work.KeepCameraType then camera.CameraType = Enum.CameraType.Scriptable end
 	elseif not active and work._cameraRenderBound then
 		RunService:UnbindFromRenderStep(CAMERA_RENDER_ID)
 
-		if not work.KeepCameraType then
-			camera.CameraType = Enum.CameraType.Custom
-		end
-
+		if not work.KeepCameraType then camera.CameraType = Enum.CameraType.Custom end
 		work._cameraRenderBound = false
 	end
 end
 
 Specials.Camera = {
-	AttachToPart = BoundProp({
+	AttachToPart = BoundProp {
 		Get = function(camera: Camera, work: Scratchpad)
 			return work._cameraAttachToPart
 		end,
@@ -128,9 +119,9 @@ Specials.Camera = {
 				work._cameraAttachToPart = nil
 			end
 		end,
-	}),
+	},
 
-	LookAtPart = BoundProp({
+	LookAtPart = BoundProp {
 		Get = function(camera: Camera, work: Scratchpad)
 			return work._cameraLookAtPart
 		end,
@@ -141,18 +132,14 @@ Specials.Camera = {
 				work._cameraLookAtPart = part
 				setCameraActive(work, camera, true)
 
-				if work._updateCamera then
-					work._updateCamera()
-				end
+				if work._updateCamera then work._updateCamera() end
 			else
 				work._cameraLookAtPart = nil
 
-				if not work._cameraAttachToPart then
-					setCameraActive(work, camera, false)
-				end
+				if not work._cameraAttachToPart then setCameraActive(work, camera, false) end
 			end
 		end,
-	}),
+	},
 }
 
 -------------------------------------------------------------------------------------------------------
@@ -167,7 +154,7 @@ for i, material in Enum.Material:GetEnumItems() do
 	end)
 
 	if canColor then
-		Specials.Terrain[`MC_{material.Name}`] = BoundProp({
+		Specials.Terrain[`MC_{material.Name}`] = BoundProp {
 			Get = function(terrain: Terrain)
 				return terrain:GetMaterialColor(material)
 			end,
@@ -175,7 +162,7 @@ for i, material in Enum.Material:GetEnumItems() do
 			Set = function(color: Color3, terrain: Terrain)
 				terrain:SetMaterialColor(material, color)
 			end,
-		})
+		}
 	end
 end
 
@@ -186,7 +173,7 @@ end
 local DEF_COLOR3 = Color3.new(1, 1, 1)
 
 Specials.Model = {
-	CFrame = BoundProp({
+	CFrame = BoundProp {
 		Get = function(model: Model)
 			return model:GetPivot()
 		end,
@@ -194,9 +181,9 @@ Specials.Model = {
 		Set = function(cf: CFrame, model: Model)
 			model:PivotTo(cf)
 		end,
-	}),
+	},
 
-	Color = BoundProp({
+	Color = BoundProp {
 		Get = function(model: Model)
 			return getValue(model, "Color", DEF_COLOR3)
 		end,
@@ -215,9 +202,9 @@ Specials.Model = {
 
 			setValue(model, "Color", value, DEF_COLOR3)
 		end,
-	}),
+	},
 
-	Scale = BoundProp({
+	Scale = BoundProp {
 		Get = function(model: Model)
 			return model:GetScale()
 		end,
@@ -225,9 +212,9 @@ Specials.Model = {
 		Set = function(scale: number, model: Model)
 			model:ScaleTo(scale)
 		end,
-	}),
+	},
 
-	Reflectance = BoundProp({
+	Reflectance = BoundProp {
 		Get = function(model: Model)
 			return getValue(model, "Reflectance", 0)
 		end,
@@ -247,9 +234,9 @@ Specials.Model = {
 				setValue(model, "Reflectance", value, 0)
 			end
 		end,
-	}),
+	},
 
-	Transparency = BoundProp({
+	Transparency = BoundProp {
 		Get = function(model: Model)
 			return getValue(model, "Transparency", 0)
 		end,
@@ -260,15 +247,13 @@ Specials.Model = {
 			if current ~= value then
 				-- TODO: Slow, use a cache?
 				for i, desc in model:GetDescendants() do
-					if desc:IsA("BasePart") then
-						desc.LocalTransparencyModifier = value
-					end
+					if desc:IsA("BasePart") then desc.LocalTransparencyModifier = value end
 				end
 
 				setValue(model, "Transparency", value, 0)
 			end
 		end,
-	}),
+	},
 }
 
 -------------------------------------------------------------------------------------------------------
@@ -283,9 +268,7 @@ Specials.Humanoid = {
 			Default = default,
 
 			Set = function(value: Accessory?)
-				if value then
-					pcall(humanoid.AddAccessory, humanoid, value)
-				end
+				if value then pcall(humanoid.AddAccessory, humanoid, value) end
 			end,
 		}
 	end,
@@ -307,9 +290,7 @@ Specials.Humanoid = {
 			Default = default,
 
 			Set = function(tool: Tool?)
-				if tool then
-					pcall(humanoid.EquipTool, humanoid, tool)
-				end
+				if tool then pcall(humanoid.EquipTool, humanoid, tool) end
 			end,
 		}
 	end,
@@ -413,17 +394,13 @@ Specials.ParticleEmitter = {
 	Emit = function(emitter: ParticleEmitter)
 		local emitCount: number = emitter:GetAttribute("EmitCount")
 
-		if type(emitCount) ~= "number" then
-			emitCount = 0
-		end
+		if type(emitCount) ~= "number" then emitCount = 0 end
 
 		return {
 			Default = emitCount,
 
 			Set = function(count: number)
-				if count > 0 then
-					emitter:Emit(count)
-				end
+				if count > 0 then emitter:Emit(count) end
 			end,
 		}
 	end,
@@ -532,9 +509,7 @@ local function get(work: Scratchpad, inst: Instance, prop: string): GetSet<any, 
 		inst.Destroying:Connect(function()
 			local bind: any = propBinds[inst]
 
-			if bind == props then
-				propBinds[inst] = nil
-			end
+			if bind == props then propBinds[inst] = nil end
 		end)
 
 		propBinds[inst] = assert(props)

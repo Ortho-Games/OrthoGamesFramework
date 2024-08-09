@@ -22,6 +22,7 @@ export type MoonAnimPath = {
 
 export type MoonAnimItem = {
 	Path: MoonAnimPath,
+	ID: string?,
 }
 
 export type MoonEaseInfo = {

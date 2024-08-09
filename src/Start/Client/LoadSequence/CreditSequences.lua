@@ -30,15 +30,22 @@ function CreditSequences.startPromise(preloadedAssets)
 	local sequenceModel = janitor:Add(CreditSequenceModel:Clone(), "Destroy")
 	sequenceModel.Parent = workspace
 
-	local moonTrack = MoonPlayer.new(CreditSequenceAnimation, sequenceModel)
+	workspace.CurrentCamera.CameraType = Enum.CameraType.Scriptable
+	janitor:Add(
+		workspace.CurrentCamera:GetPropertyChangedSignal("CameraType"):Once(function()
+			workspace.CurrentCamera.CameraType = Enum.CameraType.Scriptable
+		end),
+		"Disconnect"
+	)
+
+	local moonTrack = janitor:Add(MoonPlayer.new(CreditSequenceAnimation, sequenceModel), "Destroy")
+	moonTrack:SetSetting("KeepCameraType", true)
 	moonTrack:ReplaceItemByPath("game.Workspace.CurrentCamera", workspace.CurrentCamera)
+	moonTrack:Play()
 
 	janitor:Add(function()
-		moonTrack:Stop()
-		moonTrack:Reset()
+		workspace.CurrentCamera.CameraType = Enum.CameraType.Custom
 	end, true)
-
-	moonTrack:Play()
 
 	return Promise.fromEvent(moonTrack.Completed):finallyCall(janitor)
 end

@@ -339,7 +339,8 @@
           "Model",
           "GroundLever"
         ]
-      }
+      },
+      "ID": "rbxassetid://18868271383"
     },
     {
       "Path": {
@@ -352,7 +353,8 @@
           "Model",
           "Bob"
         ]
-      }
+      },
+      "ID": "rbxassetid://18868378127"
     }
   ]
 }
