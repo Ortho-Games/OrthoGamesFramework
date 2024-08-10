@@ -16,7 +16,6 @@ local animationsMemo = setmetatable({}, {
 	__index = function(t, k)
 		local v = Instance.new("Animation")
 		v.AnimationId = k
-		print(v.AnimationId)
 		rawset(t, k, v)
 		return v
 	end,
@@ -44,6 +43,7 @@ export type MoonTrack = typeof(setmetatable(
 	{} :: {
 		Completed: Signal,
 		Looped: boolean,
+		Playing: boolean,
 		_janitor: Janitor,
 		_items: { MoonItem },
 		_targets: { [Instance]: MoonItem },
@@ -342,8 +342,6 @@ local function MakeItem(moonItem: MoonAnimItem, itemSave: Instance, root: Instan
 
 	local item: MoonItem
 	if moonItem.Path.ItemType == "Rig" then
-		print(moonItem)
-
 		item = {
 			Locks = {},
 			Props = {},
@@ -382,6 +380,7 @@ function MoonTrack.new(save: StringValue, root: Instance?): MoonTrack
 		Completed = janitor:Add(Signal.new(), "Destroy"),
 		Looped = data.Information.Looped,
 		Playing = false,
+		Length = data.Information.Length / data.Information.FPS,
 		_janitor = janitor,
 		_playingJanitor = janitor:Add(Janitor.new(), "Destroy"),
 		_items = {},
@@ -459,8 +458,7 @@ function MoonTrack.Play(self: MoonTrack)
 				end
 
 				if kf then
-					local t = math.clamp((frameTime - kf.Time) / kf.Duration, 0, 1)
-					local v = kf.Handler(t)
+					local v = kf.Handler(math.clamp((frameTime - kf.Time) / kf.Duration, 0, 1))
 					setPropValue(self._scratch, item.Target, propName, v)
 				else
 					setPropValue(
@@ -474,7 +472,7 @@ function MoonTrack.Play(self: MoonTrack)
 			end
 		end
 
-		if completed and self._data.Information.Looped then
+		if completed then
 			if not self._data.Information.Looped then self:Stop() end
 			self.Completed:Fire()
 		end
@@ -507,14 +505,11 @@ function MoonTrack.Reset(self: MoonTrack)
 	end
 end
 
-function MoonTrack.LockElement(self: MoonTrack, target: Instance?, lock: any?)
+function MoonTrack.LockItem(self: MoonTrack, target: Instance?, lock: any?)
 	local item = target and self._targets[target]
 	if item then
 		item.Locks[lock or "Default"] = true
-		if item.Path.ItemType == "Rig" then
-			local current = self._targets[target].Target
-			current:Stop()
-		end
+		if item.Path.ItemType == "Rig" then item.Target:Stop() end
 
 		return true
 	end
@@ -522,12 +517,12 @@ function MoonTrack.LockElement(self: MoonTrack, target: Instance?, lock: any?)
 	return false
 end
 
-function MoonTrack.UnlockElement(self: MoonTrack, target: Instance?, lock: any?)
+function MoonTrack.UnlockItem(self: MoonTrack, target: Instance?, lock: any?)
 	local item = target and self._targets[target]
 	if item then
 		item.Locks[lock or "Default"] = nil
 		if item.Path.ItemType == "Rig" and self.Playing then
-			local current = self._targets[target].Target
+			local current = item.Target
 			current:Play()
 			current.Speed = 0
 			current.TimePosition = 0

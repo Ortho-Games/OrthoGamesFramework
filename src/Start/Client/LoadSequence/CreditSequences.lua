@@ -7,47 +7,54 @@ local Promise = require(ReplicatedStorage.Packages.Promise)
 
 local CreditSequenceAnimation = Global.Assets.MoonAnimations.CreditSequence.Animation
 local CreditSequenceModel = Global.Assets.MoonAnimations.CreditSequence.Model
+local CreditSequenceSound = Global.Assets.MoonAnimations.CreditSequence.Sound
 
 local CreditSequences = {}
 
 function CreditSequences.preloadPromise()
-	print("preloading credits")
-
-	local preloadedAssets = {}
+	local janitor = Janitor.new()
+	local preloadedAssets = {
+		janitor = janitor,
+	}
 
 	return Promise.try(function()
 		ContentProvider:PreloadAsync { CreditSequenceModel }
+		preloadedAssets.sequenceModel = janitor:Add(CreditSequenceModel:Clone(), "Destroy")
+		preloadedAssets.sequenceModel.Parent = workspace
+		preloadedAssets.moonTrack = preloadedAssets.janitor:Add(
+			MoonPlayer.new(CreditSequenceAnimation, preloadedAssets.sequenceModel),
+			"Destroy"
+		)
+		preloadedAssets.moonTrack:SetSetting("KeepCameraType", true)
 	end)
-		:andThenCall(print, "preloaded credits")
+		:catch(function(e)
+			warn(e)
+			janitor:Destroy()
+		end)
 		:andThenReturn(preloadedAssets)
 end
 
 function CreditSequences.startPromise(preloadedAssets)
-	print("starting credits")
-
-	local janitor = Janitor.new()
-
-	local sequenceModel = janitor:Add(CreditSequenceModel:Clone(), "Destroy")
-	sequenceModel.Parent = workspace
-
 	workspace.CurrentCamera.CameraType = Enum.CameraType.Scriptable
-	janitor:Add(
+	preloadedAssets.janitor:Add(
 		workspace.CurrentCamera:GetPropertyChangedSignal("CameraType"):Once(function()
 			workspace.CurrentCamera.CameraType = Enum.CameraType.Scriptable
 		end),
 		"Disconnect"
 	)
 
-	local moonTrack = janitor:Add(MoonPlayer.new(CreditSequenceAnimation, sequenceModel), "Destroy")
-	moonTrack:SetSetting("KeepCameraType", true)
-	moonTrack:ReplaceItemByPath("game.Workspace.CurrentCamera", workspace.CurrentCamera)
-	moonTrack:Play()
+	preloadedAssets.moonTrack:ReplaceItemByPath(
+		"game.Workspace.CurrentCamera",
+		workspace.CurrentCamera
+	)
+	preloadedAssets.moonTrack:Play()
+	preloadedAssets.janitor:Add(Global.Util.playSound(CreditSequenceSound, game), "Destroy")
 
-	janitor:Add(function()
+	preloadedAssets.janitor:Add(function()
 		workspace.CurrentCamera.CameraType = Enum.CameraType.Custom
 	end, true)
 
-	return Promise.fromEvent(moonTrack.Completed):finallyCall(janitor)
+	return Promise.fromEvent(preloadedAssets.moonTrack.Completed)
 end
 
 return CreditSequences

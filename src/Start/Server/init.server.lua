@@ -1,6 +1,5 @@
 --!strict
 
-local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local ServerStorage = game:GetService("ServerStorage")
@@ -8,8 +7,7 @@ local ServerStorage = game:GetService("ServerStorage")
 local Global = require(ReplicatedStorage.Shared.Global)
 
 local Net = require(ReplicatedStorage.Packages.Net)
-
-local ServerLoadedRE = Net:RemoteEvent("ServerLoaded")
+Net:RemoteFunction("RequestStart")
 
 local function callWithBenchmark(name, func, ...)
 	local m = if RunService:IsServer() then "[Server]" else "[Client]"
@@ -20,18 +18,8 @@ local function callWithBenchmark(name, func, ...)
 	return table.unpack(r)
 end
 
-callWithBenchmark(
-	"server requires",
-	Global.Util.requireDescendants,
-	ServerStorage.Server
-)
-
-callWithBenchmark(
-	"shared requires",
-	Global.Util.requireDescendants,
-	ReplicatedStorage.Shared
-)
-
+callWithBenchmark("server requires", Global.Util.requireDescendants, ServerStorage.Server)
+callWithBenchmark("shared requires", Global.Util.requireDescendants, ReplicatedStorage.Shared)
 callWithBenchmark("initialization", Global.Schedules.Init.start)
 callWithBenchmark("boot", Global.Schedules.Boot.start)
 
@@ -40,3 +28,13 @@ for scheduleName, schedule in Global.Schedules :: any do
 		RunService[scheduleName]:Connect(schedule.start)
 	end)
 end
+
+Net:Handle("RequestStart", function(player: Player)
+	player:LoadCharacter()
+	player.CharacterRemoving:Connect(function()
+		task.wait(3)
+		player:LoadCharacter()
+	end)
+
+	return true
+end)

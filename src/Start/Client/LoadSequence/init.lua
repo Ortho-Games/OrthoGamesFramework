@@ -7,15 +7,20 @@ local UserInputService = game:GetService("UserInputService")
 
 local Global = require(ReplicatedStorage.Shared.Global)
 local Janitor = require(ReplicatedStorage.Packages.Janitor)
+local LightMachine = require(ReplicatedStorage.Vendor.LightMachine)
+local Net = require(ReplicatedStorage.Packages.Net)
 local Promise = require(ReplicatedStorage.Packages.Promise)
 local Signal = require(ReplicatedStorage.Packages.Signal)
 
 local CreditSequences = require(script.CreditSequences)
-local TitleSequences = require(script.TitleSequences)
 
 local LoadScreen = require(ReplicatedFirst.First.LoadScreen)
 
 local InitAsyncFinished = Signal.new()
+
+local IntroLightingPreset = Global.Assets.LightingPresets.Intro
+
+local lightMachine = LightMachine.new(Global.Assets.LightingPresets.Intro)
 
 local function WaitForInputPromise(holdTime)
 	local janitor = Janitor.new()
@@ -98,7 +103,6 @@ return function()
 	-- cosmetic loading
 	LoadScreen.setDescription("Loading world...", 0.75)
 	local preloadCredits = CreditSequences.preloadPromise()
-	local preloadTitle = TitleSequences.preloadPromise()
 	local initAsync = Promise.fromEvent(InitAsyncFinished)
 	task.defer(function()
 		Global.Schedules.InitAsync.start()
@@ -110,7 +114,7 @@ return function()
 		Promise.race {
 			Promise.delay(2):andThen(function()
 				LoadScreen.enableSkipButton(true)
-				return Promise.fromEvent(LoadScreen.onSkipped)
+				return WaitForInputPromise(2)
 			end),
 			initAsync:andThen(function()
 				LoadScreen.setDescription("Bazinga...", 0.9)
@@ -118,33 +122,44 @@ return function()
 			end),
 		},
 		preloadCredits,
-		preloadTitle,
 	})
-		:finally(function()
+		:andThen(function()
 			LoadScreen.enableSkipButton(false)
 			LoadScreen.setDescription("Starting...", 1)
+			FadeOutTween:Play()
+			FadeOutTween.Completed:Wait()
 			task.wait(1)
-
 			LoadScreen.endLoadScreen()
-			FadeOutTween:Play()
-			FadeOutTween.Completed:Wait()
-			task.defer(FadeInTween.Play, FadeInTween)
 
-			return preloadCredits:andThen(CreditSequences.startPromise):catch(warn)
+			return Promise.race {
+				preloadCredits:andThen(function(preloadedAssets)
+					task.defer(FadeInTween.Play, FadeInTween)
+					return CreditSequences.startPromise(preloadedAssets):catch(warn)
+				end),
+				Promise.fromEvent(UserInputService.InputBegan, function(input, gpe)
+					return not gpe
+						and (
+							input.UserInputType == Enum.UserInputType.MouseButton1
+							or input.UserInputType == Enum.UserInputType.Touch
+							or input.UserInputType == Enum.UserInputType.Keyboard
+						)
+				end),
+			}
 		end)
 		:finally(function()
 			FadeOutTween:Play()
 			FadeOutTween.Completed:Wait()
-			task.defer(FadeInTween.Play, FadeInTween)
-
-			return preloadTitle:andThen(TitleSequences.startPromise):catch(warn)
-		end)
-		:finally(function()
-			FadeOutTween:Play()
-			FadeOutTween.Completed:Wait()
-			task.defer(FadeInTween.Play, FadeInTween)
-
-			Global.Schedules.Boot.start()
+			preloadCredits:andThen(function(preloadedAssets)
+				preloadedAssets.janitor:Destroy()
+			end)
 		end)
 		:await()
+
+	while not Net:Invoke("RequestStart") do
+		print("sad")
+		task.wait(3)
+	end
+
+	Global.Schedules.Boot.start()
+	FadeInTween:Play()
 end

@@ -4,7 +4,6 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 
 local Global = require(ReplicatedStorage.Shared.Global)
-local Net = require(ReplicatedStorage.Packages.Net)
 
 local StartLoadSequence = require(script.LoadSequence)
 

@@ -4,24 +4,16 @@ local Sandwich = require(ReplicatedStorage.Packages.Sandwich)
 local Util = require(ReplicatedStorage.Packages.OrthoUtil)
 
 export type Schedule = typeof(Sandwich.schedule())
-export type Schedules = { [any]: Schedule }
 
 local jobToPathName = {}
 
-local Schedules: Schedules = {}
+local Schedules = {}
 
-local function CreateScheduleProxy(scheduleName)
+local function CreateScheduleProxy(settings: { [string]: any }?)
 	local schedule
 
 	local alreadyStarted = false
-	local jobRan = {}
-	schedule = Sandwich.schedule {
-		-- before = function(job, ...)
-		-- 	-- if jobRan[job] then return end
-		-- 	-- jobRan[job] = true
-		-- 	-- print(`- {scheduleName}:`, jobToPathName[job])
-		-- end,
-	}
+	schedule = Sandwich.schedule(settings)
 
 	local self = setmetatable({}, { __index = schedule })
 
@@ -29,14 +21,12 @@ local function CreateScheduleProxy(scheduleName)
 		local pathName = debug.traceback(nil, 2)
 		local job = schedule.job(func, ...)
 		jobToPathName[job] = pathName:gsub("%s+", "")
-		--warn("Job added:", pathName)
 		return job
 	end
 
 	self.start = function(...)
 		if alreadyStarted then return schedule.start(...) end
 		alreadyStarted = true
-		-- print(scheduleName, self.getGraphPaths())
 		return schedule.start(...)
 	end
 
@@ -57,11 +47,15 @@ local function CreateScheduleProxy(scheduleName)
 	return self
 end
 
+function Schedules:Create(name: any, settings: { [string]: any }?)
+	local schedule = CreateScheduleProxy(settings)
+	rawset(self, name, schedule)
+	return self[name]
+end
+
 setmetatable(Schedules, {
 	__index = function(self, k)
-		local schedule = CreateScheduleProxy(k)
-		rawset(self, k, schedule)
-		return self[k]
+		return Schedules:Create(k)
 	end,
 })
 
