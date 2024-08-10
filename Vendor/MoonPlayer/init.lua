@@ -1,8 +1,9 @@
 local HttpService = game:GetService("HttpService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 
-local Janitor = require(script.Packages.Janitor)
-local Signal = require(script.Packages.Signal)
+local Janitor = require(ReplicatedStorage.Packages.Janitor)
+local Signal = require(ReplicatedStorage.Packages.Signal)
 
 local EaseFuncs = require(script.EaseFuncs)
 local Specials = require(script.Specials)

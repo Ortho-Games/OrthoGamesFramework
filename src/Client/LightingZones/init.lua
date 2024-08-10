@@ -39,7 +39,6 @@ return Global.Schedules.Boot.job(function()
 			currentZone, currentPriority = zone, priority
 		end
 
-		print(setZone, currentZone == setZone)
 		if currentZone == setZone then return end
 		setZone = currentZone
 		LightMachine:SetLighting(setZone and setZone.LightingPreset.Value, LightingTweenInfo)
