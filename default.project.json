@@ -39,11 +39,6 @@
           "$path": "src/Start/Client"
         }
       }
-    },
-    "ReplicatedFirst": {
-      "First": {
-        "$path": "src/Start/First"
-      }
     }
   }
 }
