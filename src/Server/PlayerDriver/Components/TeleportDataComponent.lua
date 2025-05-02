@@ -1,11 +1,11 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local ServerScriptService = game:GetService("ServerScriptService")
+
 local ServerStorage = game:GetService("ServerStorage")
 
-local InjectLifecycleSignals = require(ReplicatedStorage.Shared.Modules.InjectLifecycleSignals)
 local PlayerComponentRegistry =
-	require(ServerStorage.Server.Player.Interface.PlayerComponentRegistry)
-local PlayerEntityTracker = require(ServerStorage.Server.Player.Modules.PlayerEntityTracker)
-local World = require(ServerStorage.Server.World)
+	require(ServerScriptService.Server.PlayerDriver.Interface.PlayerComponentRegistry)
+local World = require(ReplicatedStorage.Shared.Modules.World)
 
 local TeleportDataComponent = {}
 type PlayerJoinData = {

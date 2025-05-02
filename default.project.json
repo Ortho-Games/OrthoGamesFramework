@@ -15,28 +15,22 @@
       },
       "Shared": {
         "$path": "src/Shared"
-      },
-      "Client": {
-        "$path": "src/Client"
       }
     },
     "ServerScriptService": {
-      "ServerLoader": {
-        "$path": "src/Start/Server"
+      "Server": {
+        "$path": "src/Server"
       }
     },
     "ServerStorage": {
-      "Server": {
-        "$path": "src/Server"
-      },
       "Packages": {
         "$path": "ServerPackages"
       }
     },
     "StarterPlayer": {
       "StarterPlayerScripts": {
-        "ClientLoader": {
-          "$path": "src/Start/Client"
+        "Client": {
+          "$path": "src/Client"
         }
       }
     }

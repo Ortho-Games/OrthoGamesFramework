@@ -1,10 +1,10 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local ServerScriptService = game:GetService("ServerScriptService")
+
 local ServerStorage = game:GetService("ServerStorage")
 
-local PlayerEntityTracker = require(ServerStorage.Server.Player.Modules.PlayerEntityTracker)
-local PlayerStore = require(ServerStorage.Server.DataManager.Modules.PlayerStore)
-local World = require(ServerStorage.Server.World)
+local World = require(ReplicatedStorage.Shared.Modules.World)
 
 local Profile = {}
 
@@ -47,8 +47,9 @@ local function GetProfile(entity, player, profileStore)
 	return profile
 end
 
+Profile.profileStore = nil
 function Profile:add(entity, player)
-	local profileStore = PlayerStore.playerStore
+	local profileStore = Profile.profileStore
 	if not profileStore then
 		warn("no playerstore found")
 		return
